@@ -1,0 +1,47 @@
+.vantagens h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1a7745;
+  }
+  
+  .linha-destaque {
+    width: 150px;
+    height: 4px;
+    background-color: #ff5031;
+    border-radius: 2px;
+  }
+  
+  .card {
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-body {
+    text-align: center;
+  }
+  
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #1a7745;
+  }
+  
+  .card-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+  
+  @media (max-width: 768px) {
+    .linha-destaque {
+      width: 40px;
+    }
+  }
+  
