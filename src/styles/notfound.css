@@ -1,3 +1,7 @@
+body{
+    font-family: 'Inter', sans-serif;
+}
+
 .notfound-container {
     margin: 50px auto;
     max-width: 1200px;

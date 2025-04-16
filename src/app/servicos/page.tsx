@@ -1,6 +1,5 @@
 'use client';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/styles/style.css';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";

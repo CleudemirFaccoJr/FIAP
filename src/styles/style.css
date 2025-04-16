@@ -43,7 +43,7 @@ body{
     color: #6c757d;
   }
 
-  /* CSS para o Banner na HOME */
+  /* BANNER HOME */
   .banner {
     display: flex;
     align-items: center;
@@ -71,16 +71,8 @@ body{
 
   .banner-content button {
     padding: 0.8rem 1.5rem;
-    background-color: #28A745;
-    color: white;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
     font-size: 1rem;
-  }
-
-  .banner-content button:hover {
-    background-color: #218838;
   }
 
   .banner-image {
@@ -91,6 +83,93 @@ body{
     width: 100%;
     height: auto;
   }
+
+  /* CSS para Modal Abrir Conta e Botões Correlatos */
+  .btn-modalAbrirConta{
+    background-color: #47A138;
+    color: #ffffff;
+  }
+
+  .btn-modalAbrirConta:hover{
+    background-color: #89DE81;
+    color: #ffffff;
+    border: 2px solid #47A138;
+  }
+
+  /* CSS para Modal Login Conta e Botões Correlatos */
+  .btn-modalLoginUsuario{
+    border: 2px solid #47A138;
+    color: #47A138;
+  }
+
+  .btn-modalLoginUsuario:hover{
+    background-color: #C3C3C3;
+    color: #000000;
+  }
+
+  .modal-footer, .modal-header{
+    border-top: none;
+    border-bottom: none;
+  }
+
+  .modal-content{
+    background-color: #F8F8F8!important;
+    padding-left: 65px;
+    padding-right: 65px;
+  }
+
+  .form-label{
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .termostext{
+    font-size: 12px;
+    padding-left: 16px;
+  }
+
+  .btnCriarConta {
+    background-color: #ff5031;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.btnCriarConta:hover {
+  background-color: transparent;
+  color: #ff5031;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: 1px solid #ff5031;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.esqueciminhasenha{
+  color: #47A138;
+}
+
+.btn-acessar{
+  background-color: #47A138;
+  color: #ffffff;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-weight: bold;
+}
+
+.btn-acessar:hover{
+  background-color: transparent;
+  color: #47A138;
+  border: 1px solid #47A138;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-weight: bold;
+}
 
   @media (max-width: 1024px) {
     .banner {

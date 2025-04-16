@@ -1,6 +1,5 @@
 'use client';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; 
 import '@/styles/style.css';
 import Navbar from "@/components/navbar";
