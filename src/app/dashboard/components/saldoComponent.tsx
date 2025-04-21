@@ -14,7 +14,7 @@ const SaldoComponent: React.FC<SaldoProps> = ({ userId }) => {
   useEffect(() => {
     const fetchSaldo = async () => {
       const db = getDatabase();
-      const saldoRef = ref(db, `contas/${userId}/saldo`);
+      const saldoRef = ref(db, `contas/${userId}/saldo/saldo`);
       const snapshot = await get(saldoRef);
 
       if (snapshot.exists()) {

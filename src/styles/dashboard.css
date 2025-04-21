@@ -106,7 +106,7 @@ body{
   .extrato-transacao{
     display: inline-flex;
     border-bottom: 1px solid #47A138;
-    padding-bottom: 20px;
+    padding-bottom: 20px;;
   }
 
   .extrato-mes{
@@ -135,11 +135,13 @@ body{
   .extrato-tipo-deposito{
     color: #47A138;
     font-size: 12px;
+    text-transform: capitalize;
   }
 
   .extrato-tipo-transferencia{
     color: #FF5031;
     font-size: 12px;
+    text-transform: capitalize;
   }
 
   /* CSS para Nova Transação */
