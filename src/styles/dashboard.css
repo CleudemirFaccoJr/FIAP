@@ -100,13 +100,13 @@ body{
   .extrato-header{
     font-weight: 800;
     color: #47A138;
-    padding-bottom: 10px;
+    padding-left: 0px;
   }
 
   .extrato-transacao{
     display: inline-flex;
     border-bottom: 1px solid #47A138;
-    padding-bottom: 20px;;
+    padding: 10px 0px;
   }
 
   .extrato-mes{

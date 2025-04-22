@@ -16,7 +16,6 @@ const ExtratoComponent = () => {
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
 
-  // Função para buscar as transações do usuário logado
   const fetchTransacoes = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
@@ -36,36 +35,30 @@ const ExtratoComponent = () => {
           console.log('Transações encontradas:', data);
   
           const transacoesArray: { data: string; hora: string; valor?: number; tipo?: string }[] = [];
-          let currentMonth: number | null = null;
+          let mesVigenteEncontrado: string | null = null;
   
-          Object.keys(data).forEach((anoMes) => {
-            const dias = data[anoMes];
-  
-            Object.keys(dias).forEach((dia) => {
-              const usuarios = dias[dia];
-  
-              if (usuarios[userId]) {
-                const transacoesUsuario = usuarios[userId];
-  
-                Object.keys(transacoesUsuario).forEach((transacaoId) => {
-                  const transacao = transacoesUsuario[transacaoId];
+          Object.values(data).forEach((dias) => {
+            Object.values(dias as Record<string, any>).forEach((usuarios: Record<string, any>) => {
+              if (usuarios && usuarios[userId]) {
+                Object.values(usuarios[userId] as Record<string, any>).forEach((transacao: any) => {
+                  if (transacao.data && transacao.data.includes('-')) {
+                    const [dia, mes, ano] = transacao.data.split('-');
+                    transacao.data = `${dia}/${mes}/${ano}`;
+                  }
 
-                  const dataOriginal = transacao.data ?? '';
-                  const [ano, mes, dia] = dataOriginal.split('-');
-                  const dataFormatada = `${dia}/${mes}/${ano}`;
-                  const hora = transacao.hora ?? '00:00';
-  
                   transacoesArray.push({
                     ...transacao,
-                    data: dataFormatada,
                     tipo: transacao.tipoTransacao,
-                    hora,
                   });
   
-                  // Define o mês vigente se ainda não estiver definido
-                  if (currentMonth === null) {
-                    currentMonth = parseInt(mes, 10);
-                    setMesVigente(mesesPorExtenso[currentMonth - 1]);
+                  
+                  if (mesVigenteEncontrado === null && transacao.data) {
+                    const [, mes] = transacao.data.split('/');
+                    const numeroMes = parseInt(mes, 10);
+                    if (!isNaN(numeroMes) && mesesPorExtenso[numeroMes - 1]) {
+                      mesVigenteEncontrado = mesesPorExtenso[numeroMes - 1];
+                      setMesVigente(mesVigenteEncontrado);
+                    }
                   }
                 });
               }
@@ -75,17 +68,19 @@ const ExtratoComponent = () => {
           setTransacoes(transacoesArray);
         } else {
           console.log('Não há transações para o usuário.');
+          setTransacoes([]); 
+          setMesVigente(''); 
         }
       } catch (error) {
         console.error('Erro ao buscar transações:', error);
       }
     } else {
       console.log('Usuário não está logado.');
+      setTransacoes([]);
+      setMesVigente('');
     }
   };
   
-
-  // Carrega as transações ao montar o componente
   useEffect(() => {
     fetchTransacoes();
   }, []);
@@ -133,12 +128,9 @@ const ExtratoComponent = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div><br />
         <div className='row'>
-          <div className='col-md-4 col-sm-12'>
-            <p>Saldo em Conta</p>
-          </div>
-          <div className='col-md-8 col-sm-12 text-end'>
+          <div className='col-md-12 col-sm-12 text-end'>
             <Link href="/extrato" className='extrato-link'>Ver extrato completo</Link>
           </div>
         </div>

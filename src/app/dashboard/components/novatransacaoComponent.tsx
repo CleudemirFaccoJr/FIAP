@@ -67,9 +67,9 @@ const NovaTransacaoComponent = () => {
 
         let novoSaldo: number;
         if (tipo === "deposito") {
-            novoSaldo = saldoAtual + valorNumerico; // Soma para depósito
+            novoSaldo = saldoAtual + valorNumerico;
         } else if (tipo === "transferencia") {
-            novoSaldo = saldoAtual - valorNumerico; // Subtrai para transferência
+            novoSaldo = saldoAtual - valorNumerico;
         } else {
             alert("Tipo de transação inválido.");
             return;
@@ -124,35 +124,16 @@ const NovaTransacaoComponent = () => {
             <h1 className="nova-transacao-titulo">Nova Transação</h1>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <select
-                        id="tipo"
-                        name="tipo"
-                        className="tipo-transacao-select"
-                        value={tipo}
-                        onChange={(e) => setTipo(e.target.value)}
-                        required
-                    >
+                    <select id="tipo" name="tipo" className="tipo-transacao-select" value={tipo} onChange={(e) => setTipo(e.target.value)} required>
                         <option value="">Selecione o tipo de transação</option>
                         <option value="deposito">Depósito</option>
                         <option value="transferencia">Transferência</option>
                     </select>
                 </div>
                 <div className="form-group">
-                    <input
-                        type="number"
-                        id="valor"
-                        name="valor"
-                        className="valor-input"
-                        placeholder="R$ 00,00"
-                        step="0.01"
-                        value={valor}
-                        onChange={(e) => setValor(e.target.value)}
-                        required
-                    />
+                    <input type="number" id="valor" name="valor" className="valor-input" placeholder="R$ 00.00" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} required/>
                 </div>
-                <button type="submit" className="concluir-button">
-                    Concluir
-                </button>
+                <button type="submit" className="concluir-button"> Concluir Transação</button>
             </form>
         </div>
     );
