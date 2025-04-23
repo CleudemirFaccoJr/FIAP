@@ -20,7 +20,6 @@ const NovaTransacaoComponent = () => {
         }
     }, []);
 
-    // Função para obter o saldo atual
     const obterSaldo = async (idconta: string) => {
         const contaRef = ref(database, `contas/${idconta}/saldo`);
         try {
@@ -84,12 +83,14 @@ const NovaTransacaoComponent = () => {
         const mesVigente = `${String(dataAtual.getMonth() + 1).padStart(2, "0")}-${dataAtual.getFullYear()}`;
         const dataFormatada = `${String(dataAtual.getDate()).padStart(2, "0")}-${String(dataAtual.getMonth() + 1).padStart(2, "0")}-${dataAtual.getFullYear()}`;
         const timestamp = dataAtual.getTime();
+        const idTransacao = `${timestamp}`;
 
         const transacoesRef = ref(database, `transacoes/${mesVigente}/${dataFormatada}/${idconta}/${timestamp}`);
 
         try {
             // Salvar a transação no Firebase
             await set(transacoesRef, {
+                idTransacao,
                 tipoTransacao: tipo,
                 valor: valorNumerico,
                 saldoAnterior: saldoAtual,

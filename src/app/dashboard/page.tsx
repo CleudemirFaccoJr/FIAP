@@ -7,9 +7,11 @@ import SaldoComponent from './components/saldoComponent';
 import DashboardNavbar from './components/dashboardnavbar';
 import ExtratoComponent from './components/extratoComponent';
 import NovaTransacaoComponent from './components/novatransacaoComponent';
+import Servicos from './components/servicosComponent';
+import CartoesCredito from './components/cartoesCreditoComponent';
 import { auth } from '../../lib/firebase';
-import {onAuthStateChanged } from 'firebase/auth';
-import {getDatabase, ref, get } from 'firebase/database';
+import { onAuthStateChanged } from 'firebase/auth';
+import { getDatabase, ref, get } from 'firebase/database';
 
 const formatarDataCompleta = () => {
   const agora = new Date();
@@ -27,6 +29,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dataCompleta, setDataCompleta] = useState('');
   const [primeiroNome, setPrimeiroNome] = useState('');
+  const [componenteAtivo, setComponenteAtivo] = useState<string>(''); // Novo estado
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -67,36 +70,53 @@ const Dashboard = () => {
     }
   }, [userId, primeiroNome]);
 
+  const renderComponente = () => {
+    switch (componenteAtivo) {
+      case 'outros-servicos':
+        return <Servicos />;
+      case 'cartoes-credito':
+        return <CartoesCreditoComponent />;
+      case 'home':
+        return <div>&nbsp;</div>;
+      default:
+        return (<div>&nbsp;</div>);
+    }
+  };
+
   if (loading) {
     return <div>Carregando informações do usuário...</div>;
   }
 
   if (userId === null) {
-    return <div>Usuário não autenticado. Redirecione para a página de login.</div>; 
+    return <div>Usuário não autenticado. Redirecione para a página de login.</div>;
   }
 
   return (
     <main>
-      <DashboardNavbar />
+      <DashboardNavbar setComponenteAtivo={setComponenteAtivo} />
       <div className='container'>
         <div className='row'>
           <div className='dadosAcesso col-md-12'>
-          <h5 className='nomeUsuario'>{primeiroNome || 'Usuário'}</h5>
+            <h5 className='nomeUsuario'>{primeiroNome || 'Usuário'}</h5>
             <p className='diaSemana'>{dataCompleta}</p>
           </div>
           <div className='row'>
-              <div className='col-md-4 col-sm-12'>
-                <SaldoComponent userId={userId} /><br/>
-                <NovaTransacaoComponent /><br/>
-              </div>
-              <div className='col-md-8 col-sm-12'>
-                <ExtratoComponent />
-              </div>
+            <div className='col-md-4 col-sm-12'>
+              <SaldoComponent userId={userId} /><br />
+              <NovaTransacaoComponent /><br />
+            </div>
+            <div className='col-md-8 col-sm-12'>
+              <ExtratoComponent />
             </div>
           </div>
+          <div className='row'>
+            <div className='col-md-12'>
+              <div className='outrosServicos'>{renderComponente()}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
-    
   );
 };
 

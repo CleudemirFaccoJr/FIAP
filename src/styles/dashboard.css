@@ -176,7 +176,7 @@ body{
   .valor-input {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #cccccc;
     border-radius: 5px;
     font-size: 1em;
     color: #333;
@@ -197,3 +197,70 @@ body{
   .concluir-button:hover {
     background-color: #45a049;
   }
+
+
+  /* CSS para Modal de Editar Transação */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .conteudoModal {
+    background: #F8F8F8;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  .conteudoModal h3{
+    font-size: 20px;
+  }
+
+  .conteudoModal .modal-footer{
+    padding-top: 20px;
+  }
+  
+  .botaoSalvar{
+    background-color: #4CAF50;
+    padding: 5px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+  .botaoSalvar:hover{
+    background-color: transparent;
+    color: #4CAF50;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .botaoCancelar{
+    background-color: #F44336;
+    padding: 5px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .botaoCancelar:hover{
+    background-color: transparent;
+    color: #F44336;
+    border: 1px solid #F44336;
+    border-radius: 5px;
+    cursor: pointer;
+  }	
+  
