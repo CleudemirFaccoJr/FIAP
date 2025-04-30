@@ -16,6 +16,12 @@ interface Transacao {
   data: string;
   hora: string;
   idTransacao: string;
+  historico?: Array<{
+    dataModificacao: string;
+    campoModificado: string;
+    valorAnterior: any;
+    valorAtualizado: any;
+  }>;
 }
 
 interface EditarTransacaoProps {
@@ -65,11 +71,9 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
                 const transacoesdoUsuario = (
                   diasTransacao as Record<string, any>
                 )[userIdAtual];
-                Object.values(transacoesdoUsuario).forEach(
-                  (transacao: any) => {
-                    transacoesEncontradas.push(transacao as Transacao);
-                  }
-                );
+                Object.values(transacoesdoUsuario).forEach((transacao: any) => {
+                  transacoesEncontradas.push(transacao as Transacao);
+                });
               }
             });
 
@@ -104,7 +108,6 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
     const currentMonthTransactions =
       transacoesMensais[format(mesSelecionado!, "MM-yyyy")] || [];
     const foundTransaction = currentMonthTransactions.find((transacao) => {
-      console.log("Segue o id da transação:", transacao.idTransacao, id);
       return transacao.idTransacao === id;
     });
     settransacaoSelecionada(foundTransaction || null);
@@ -136,55 +139,88 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
       transacaoSelecionada.idTransacao
     ) {
       const mesAno = format(mesSelecionado, "MM-yyyy");
+      const dataDia = transacaoSelecionada.data;
       const db = getDatabase();
   
-      // Caminho correto com idTransacao
+      // Caminho completo com dia
       const transacaoRef = ref(
         db,
-        `transacoes/${mesAno}/${userIdAtual}/${transacaoSelecionada.idTransacao}`
+        `transacoes/${mesAno}/${dataDia}/${userIdAtual}/${transacaoSelecionada.idTransacao}`
       );
+      const saldoRef = ref(db, `contas/${userIdAtual}/saldo`);
   
-      const historicoRef = ref(
-        db,
-        `historicoTransacoes/${mesAno}/${transacaoSelecionada.idTransacao}`
-      );
+      console.log("Caminho da transação no Firebase:", transacaoRef.toString());
   
       try {
-        // Recuperar dados anteriores para registrar no histórico
+        // Recuperar dados anteriores
         const snapshot = await get(transacaoRef);
         if (snapshot.exists()) {
+          console.log("Dados encontrados na transação:", snapshot.val());
+  
           const dadosAnteriores = snapshot.val();
+          const historicoAtual = dadosAnteriores.historico || [];
+          let saldoAtual = 0;
+  
+          const saldoSnapshot = await get(saldoRef);
+          if (saldoSnapshot.exists()) {
+            saldoAtual = saldoSnapshot.val();
+          }
+  
+          console.log("Saldo atual antes da atualização:", saldoAtual);
+  
+          // Atualizar saldo com base no tipo de transação
+          if (dadosAnteriores.tipoTransacao !== transacaoSelecionada.tipoTransacao) {
+            if (dadosAnteriores.tipoTransacao === "deposito") {
+              saldoAtual -= dadosAnteriores.valor;
+            } else if (dadosAnteriores.tipoTransacao === "transferencia") {
+              saldoAtual += dadosAnteriores.valor;
+            }
+  
+            if (transacaoSelecionada.tipoTransacao === "deposito") {
+              saldoAtual += transacaoSelecionada.valor!;
+            } else if (transacaoSelecionada.tipoTransacao === "transferencia") {
+              saldoAtual -= transacaoSelecionada.valor!;
+            }
+  
+            console.log("Novo saldo calculado:", saldoAtual);
+            await update(saldoRef, { saldo: saldoAtual });
+          }
+  
+          // Atualizar histórico
+          const novoHistorico = [
+            ...historicoAtual,
+            {
+              dataModificacao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
+              campoModificado: "tipoTransacao",
+              valorAnterior: dadosAnteriores.tipoTransacao,
+              valorAtualizado: transacaoSelecionada.tipoTransacao,
+            },
+            {
+              dataModificacao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
+              campoModificado: "valor",
+              valorAnterior: dadosAnteriores.valor,
+              valorAtualizado: transacaoSelecionada.valor,
+            },
+          ];
+  
+          console.log("Novo histórico gerado:", novoHistorico);
   
           // Atualizar transação
           await update(transacaoRef, {
-            valor: transacaoSelecionada.valor,
-            tipoTransacao: transacaoSelecionada.tipoTransacao,
+            ...transacaoSelecionada,
+            historico: novoHistorico,
           });
-  
-          // Adicionar ao histórico
-          const novoRegistroHistorico = {
-            valorAnterior: dadosAnteriores.valor,
-            valorAtualizado: transacaoSelecionada.valor,
-            tipoAnterior: dadosAnteriores.tipoTransacao,
-            tipoAtualizado: transacaoSelecionada.tipoTransacao,
-            dataModificacao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
-          };
-  
-          const historicoSnapshot = await get(historicoRef);
-          let historico = historicoSnapshot.exists() ? historicoSnapshot.val() : [];
-          historico = Array.isArray(historico) ? historico : [];
-          historico.push(novoRegistroHistorico);
-  
-          await update(historicoRef, { historico });
   
           console.log("Transação atualizada com sucesso!");
           onClose();
         } else {
-          console.error("Transação não encontrada para atualização.");
+          console.error("Transação não encontrada no caminho especificado:", transacaoRef.toString());
         }
       } catch (error) {
         console.error("Erro ao atualizar transação:", error);
       }
+    } else {
+      console.error("Dados incompletos para atualizar transação.");
     }
   };
   

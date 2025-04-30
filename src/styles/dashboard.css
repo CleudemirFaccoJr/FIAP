@@ -263,4 +263,57 @@ body{
     border-radius: 5px;
     cursor: pointer;
   }	
+
+  /* Estilos para ajustar cartões */
+  .sessaoCartoes{
+    background-color: #f4f8f4;
+     border-radius: 10px; 
+  }
+
+  .nomeBancoCartao{
+    font-weight: 500;
+    font-style: italic;
+    font-size: 30px;
+  }
+
+  .tipoCartao{
+    font-family: 'Montserrat';
+    font-size: 22px;
+  }
+
+  .btnConfigurarCartao{
+    width: 100%;
+    background-color: #FF5722;
+    border: none;
+    color: #ffffff;
+  }  
+
+  .btnBloquearCartao{
+    width: 100%;
+  }
+
+  .cartaoFisico {
+    background-color: #004d60;
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 20px;
+    background-image: url('../../public/images/Pixels4.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+  }
   
+  .cartaoVirtual {
+    background-color: #b0b0b0;
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 20px;
+    background-image: url('../../public/images/Pixels4.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+  }
+  
+
+  .nomeCartao{
+    font-style: italic;
+    font-family: 'Montserrat';
+  }

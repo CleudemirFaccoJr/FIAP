@@ -8,7 +8,7 @@ import DashboardNavbar from './components/dashboardnavbar';
 import ExtratoComponent from './components/extratoComponent';
 import NovaTransacaoComponent from './components/novatransacaoComponent';
 import Servicos from './components/servicosComponent';
-import CartoesCredito from './components/cartoesCreditoComponent';
+import MeusCartoes from './components/meuscartoesComponent';
 import { auth } from '../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getDatabase, ref, get } from 'firebase/database';
@@ -73,9 +73,9 @@ const Dashboard = () => {
   const renderComponente = () => {
     switch (componenteAtivo) {
       case 'outros-servicos':
-        return <Servicos />;
+        return <Servicos onServicoSelecionado={setComponenteAtivo} />;
       case 'cartoes-credito':
-        return <CartoesCreditoComponent />;
+        return <MeusCartoes />;
       case 'home':
         return <div>&nbsp;</div>;
       default:
