@@ -97,6 +97,7 @@ const NovaTransacaoComponent = () => {
                 saldo: novoSaldo,
                 data: dataFormatada,
                 hora: `${String(dataAtual.getHours()).padStart(2, "0")}:${String(dataAtual.getMinutes()).padStart(2, "0")}:${String(dataAtual.getSeconds()).padStart(2, "0")}`,
+                status: "Ativa",
             });
 
             // Atualizar o saldo da conta no Firebase

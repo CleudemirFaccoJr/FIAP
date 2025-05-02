@@ -5,16 +5,9 @@ import Link from "next/link";
 import { getDatabase, ref, get } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, } from "chart.js";
 import EditarTransacaoModal from "./modaleditarComponent";
+import ExcluirTransacaoModal from "./modalexcluirComponent";
 
 ChartJS.register(
   CategoryScale,
@@ -24,6 +17,14 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+interface Transacao {
+  hora: string;
+  data: string;
+  valor?: number;
+  tipo?: string;
+  tipoTransacao?: string;
+}
 
 const calcularEntradaseSaidas = (
   transacoes: { data: string; valor?: number; tipo?: string }[]
@@ -56,16 +57,10 @@ const calcularEntradaseSaidas = (
 };
 
 const ExtratoComponent = () => {
-  const [transacoes, setTransacoes] = useState<
-    {
-      hora: string;
-      data: string;
-      valor?: number;
-      tipo?: string;
-    }[]
-  >([]);
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [mesVigente, setMesVigente] = useState("");
-  const [modalAberto, setModalAberto] = useState(false);
+  const [modalEditarAberto, setModalEditarAberto] = useState(false);
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
 
   const { entradas, saidas } = calcularEntradaseSaidas(transacoes);
 
@@ -108,25 +103,20 @@ const ExtratoComponent = () => {
   const fetchTransacoes = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
-
+  
     if (user) {
       const userId = user.uid;
       const db = getDatabase();
       const transacoesRef = ref(db, `transacoes`);
-
+  
       try {
         const snapshot = await get(transacoesRef);
-
+  
         if (snapshot.exists()) {
           const data = snapshot.val();
-          const transacoesArray: {
-            data: string;
-            hora: string;
-            valor?: number;
-            tipo?: string;
-          }[] = [];
+          const transacoesArray: Transacao[] = [];
           let mesVigenteEncontrado: string | null = null;
-
+  
           Object.values(data).forEach((dias) => {
             Object.values(dias as Record<string, any>).forEach(
               (usuarios: Record<string, any>) => {
@@ -134,22 +124,30 @@ const ExtratoComponent = () => {
                   Object.values(
                     usuarios[userId] as Record<string, any>
                   ).forEach((transacao: any) => {
-                    if (transacao.data && transacao.data.includes("-")) {
-                      const [dia, mes, ano] = transacao.data.split("-");
-                      transacao.data = `${dia}/${mes}/${ano}`;
-                    }
-
-                    transacoesArray.push({
-                      ...transacao,
-                      tipo: transacao.tipoTransacao,
-                    });
-
-                    if (mesVigenteEncontrado === null && transacao.data) {
-                      const [, mes] = transacao.data.split("/");
-                      const numeroMes = parseInt(mes, 10);
-                      if (!isNaN(numeroMes) && mesesPorExtenso[numeroMes - 1]) {
-                        mesVigenteEncontrado = mesesPorExtenso[numeroMes - 1];
-                        setMesVigente(mesVigenteEncontrado);
+                    // Filtrar transações por status "Ativa" ou "Editada"
+                    if (
+                      transacao.status === "Ativa" ||
+                      transacao.status === "Editada"
+                    ) {
+                      // Ajustar o formato da data
+                      if (transacao.data && transacao.data.includes("-")) {
+                        const [dia, mes, ano] = transacao.data.split("-");
+                        transacao.data = `${dia}/${mes}/${ano}`;
+                      }
+  
+                      transacoesArray.push({
+                        ...transacao,
+                        tipo: transacao.tipoTransacao,
+                      });
+  
+                      // Determinar o mês vigente
+                      if (mesVigenteEncontrado === null && transacao.data) {
+                        const [, mes] = transacao.data.split("/");
+                        const numeroMes = parseInt(mes, 10);
+                        if (!isNaN(numeroMes) && mesesPorExtenso[numeroMes - 1]) {
+                          mesVigenteEncontrado = mesesPorExtenso[numeroMes - 1];
+                          setMesVigente(mesVigenteEncontrado);
+                        }
                       }
                     }
                   });
@@ -157,7 +155,7 @@ const ExtratoComponent = () => {
               }
             );
           });
-
+  
           setTransacoes(transacoesArray);
         } else {
           setTransacoes([]);
@@ -171,13 +169,21 @@ const ExtratoComponent = () => {
       setMesVigente("");
     }
   };
+  
 
   useEffect(() => {
     fetchTransacoes();
   }, []);
 
-  const abrirModal = () => setModalAberto(true);
-  const fecharModal = () => setModalAberto(false);
+  const abrirModalEditar = () => setModalEditarAberto(true);
+  const fecharModalEditar = () => setModalEditarAberto(false);
+
+  const abrirModalExcluir = () => {
+    console.log("Botão de excluir clicado!");
+    setModalExcluirAberto(true);
+  };
+  const fecharModalExcluir = () => setModalExcluirAberto(false);
+
 
   return (
     <div className="extrato-card">
@@ -189,14 +195,10 @@ const ExtratoComponent = () => {
           <div className="col-md-2 col-sm-12 text-end">
             <ul>
               <li>
-                <span className="extrato-editar-icone" onClick={abrirModal}>
-                  <FontAwesomeIcon icon={faPenToSquare} />
-                </span>
+                <span className="extrato-editar-icone" onClick={abrirModalEditar}><FontAwesomeIcon icon={faPenToSquare} /></span>
               </li>
               <li>
-                <span className="extrato-excluir-icone">
-                  <FontAwesomeIcon icon={faTrashCan} />
-                </span>
+                <span className="extrato-excluir-icone" onClick={abrirModalExcluir}><FontAwesomeIcon icon={faTrashCan} /></span>
               </li>
             </ul>
           </div>
@@ -222,7 +224,7 @@ const ExtratoComponent = () => {
                       <div className="col-md-6 col-sm-12">
                         <div
                           className={`extrato-valor ${
-                            transacao.tipo === "Deposito"
+                            transacao.tipo === "deposito"
                               ? "positivo"
                               : "negativo"
                           }`}
@@ -257,8 +259,12 @@ const ExtratoComponent = () => {
         </div>
       </div>
 
-      {modalAberto && (
-        <EditarTransacaoModal isOpen={modalAberto} onClose={fecharModal} />
+      {modalEditarAberto && (
+        <EditarTransacaoModal isOpen={modalEditarAberto} onClose={fecharModalEditar} />
+      )}
+
+      {modalExcluirAberto && (
+        <ExcluirTransacaoModal isOpen={modalExcluirAberto} onClose={fecharModalExcluir} />
       )}
     </div>
   );
