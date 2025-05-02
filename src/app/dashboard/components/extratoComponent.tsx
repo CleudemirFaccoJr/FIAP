@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 import { getDatabase, ref, get } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { Bar } from "react-chartjs-2";
@@ -175,6 +174,13 @@ const ExtratoComponent = () => {
     fetchTransacoes();
   }, []);
 
+  const userId = getAuth().currentUser?.uid;
+
+    if (!userId) {
+        console.error("Usuário não autenticado ou ID ausente.");
+    }
+
+
   const abrirModalEditar = () => setModalEditarAberto(true);
   const fecharModalEditar = () => setModalEditarAberto(false);
 
@@ -248,13 +254,6 @@ const ExtratoComponent = () => {
                 )}
               </div>
             </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-md-12 col-sm-12 text-end">
-            <Link href="/extrato" className="extrato-link">
-              Ver extrato completo
-            </Link>
           </div>
         </div>
       </div>
