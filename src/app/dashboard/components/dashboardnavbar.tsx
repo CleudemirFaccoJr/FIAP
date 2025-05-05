@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -57,12 +58,10 @@ export default function DashboardNavbar({
     <>
       <header className="dashboard-header p-3">
         <div className="container d-flex justify-content-between align-items-center">
-          <Image src="/images/logo.png" alt="Logo ByteBank" width={145} height={36}/>
+          <Image src="/images/logo.png" alt="Logo ByteBank" width={145} height={36} />
           <div className="user-info d-flex align-items-center">
             <span className="user-name me-3">{userName}</span>
-            <a href="/minha-conta">
-              <Image src="/icons/avatar.png" alt="Ícone de Usuário" width={36} height={36}/>
-            </a>
+            <Image src="/icons/avatar.png" alt="Ícone de Usuário" width={36} height={36} />
           </div>
         </div>
       </header>
@@ -82,10 +81,10 @@ export default function DashboardNavbar({
                 <a className={`nav-link ${activeTab === "transferencias" ? "active" : ""}`} onClick={() => handleTabClick("transferencias")}>Transferências</a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${ activeTab === "investimentos" ? "active" : "" }`} onClick={() => handleTabClick("investimentos")}>Investimentos</a>
+                <a className={`nav-link ${activeTab === "investimentos" ? "active" : ""}`} onClick={() => handleTabClick("investimentos")}>Investimentos</a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link ${ activeTab === "outros-servicos" ? "active" : ""}`} onClick={() => handleTabClick("outros-servicos")}>Outros Serviços</a>
+                <a className={`nav-link ${activeTab === "outros-servicos" ? "active" : ""}`} onClick={() => handleTabClick("outros-servicos")}>Outros Serviços</a>
               </li>
             </ul>
           </div>
