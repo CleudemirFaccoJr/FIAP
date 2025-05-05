@@ -1,8 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
-import { auth, database } from "../lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { ref, set } from "firebase/database";
+import { Usuario } from "@/app/classes/Usuario";
 
 export default function AbrirContaModal() {
   const [showModal, setShowModal] = useState(false);
@@ -39,25 +37,14 @@ export default function AbrirContaModal() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    const { nome, email, senha } = formData;
+    const novoUsuario = new Usuario(nome, email, senha);
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        formData.email,
-        formData.senha
-      );
-      const userId = userCredential.user.uid;
-
-      await set(ref(database, `contas/${userId}`), {
-        idconta: userId,
-        nomeUsuario: formData.nome,
-        emailUsuario: formData.email,
-      });
-
-      window.alert("Sucesso! Sua conta foi cadastrada.");
+      await novoUsuario.cadastrar();
       toggleModal();
-    } catch (error) {
-      console.error(error);
-      window.alert("Erro! Não foi possível cadastrar sua conta, tente novamente mais tarde.");
+    } catch (error: any) {
+      window.alert(error.message);
     }
   };
 

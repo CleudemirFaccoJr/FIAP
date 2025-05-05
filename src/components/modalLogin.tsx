@@ -1,8 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { app } from "../lib/firebase";
+import { Usuario } from "@/app/classes/Usuario";
 import { useRouter } from "next/navigation";
 
 export default function ModalLogin() {
@@ -11,7 +10,6 @@ export default function ModalLogin() {
   const [senha, setSenha] = useState("");
   const [erroLogin, setErroLogin] = useState("");
   const router = useRouter();
-  const auth = getAuth(app);
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -24,25 +22,18 @@ export default function ModalLogin() {
     event.preventDefault();
     setErroLogin("");
 
+    const usuario = new Usuario("", email, senha);
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-      console.log("Usuário logado:", userCredential.user);
+      const user = await usuario.login();
+      console.log("Usuário logado:", user);
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "auth/internal-error") {
-          setErroLogin("Ocorreu um erro interno. Tente novamente mais tarde.");
-        } else if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-          setErroLogin("Este usuário não está cadastrado ou a senha está incorreta.");
-        } else {
-          setErroLogin("Ocorreu um erro ao tentar fazer login.");
-        }
-      } else {
-        setErroLogin("Erro desconhecido. Tente novamente.");
+      if (error instanceof Error) {
+        setErroLogin(error.message);
       }
     }
   };
-
 
   return (
     <>
@@ -93,9 +84,6 @@ export default function ModalLogin() {
                   )}
                   <button type="submit" className="btn btn-acessar">Acessar</button>
                 </form>
-              </div>
-              <div className="modal-footer">
-                {/* Você pode adicionar outros botões aqui, se necessário */}
               </div>
             </div>
           </div>
