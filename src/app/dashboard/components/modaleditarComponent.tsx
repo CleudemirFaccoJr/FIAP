@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ptBR } from "date-fns/locale/pt-BR";
-import { get, getDatabase, ref, update } from "firebase/database";
+import { get, getDatabase, ref } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { format } from "date-fns";
 import "../../../styles/dashboard.css";
 import "../../../styles/style.css";
+import { Transacao } from "@/app/classes/Transacao";
 
 registerLocale("pt-BR", ptBR);
 
-interface Transacao {
+interface TransacaoData {
   valor?: number;
   tipoTransacao?: string;
   data: string;
@@ -30,7 +31,7 @@ interface EditarTransacaoProps {
 
 const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
   const [mesSelecionado, setmesSelecionado] = useState<Date | null>(null);
-  const [transacoesMensais, settransacoesMensais] = useState<{ [key: string]: Transacao[] }>({});
+  const [transacoesMensais, settransacoesMensais] = useState<{ [key: string]: TransacaoData[] }>({});
   const [idTransacaoSelecionada, setidTransacaoSelecionada] = useState<string | null>(null);
   const [transacaoSelecionada, settransacaoSelecionada] = useState<Transacao | null>(null);
   const [userIdAtual, setuserIdAtual] = useState<string | null>(null);
@@ -56,7 +57,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
           const snapshot = await get(transacoesRef);
           if (snapshot.exists()) {
             const data = snapshot.val();
-            const transacoesEncontradas: Transacao[] = [];
+            const transacoesEncontradas: TransacaoData[] = [];
 
             Object.entries(data).forEach(([_, diasTransacao]) => {
               if (
@@ -68,7 +69,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
                 )[userIdAtual];
                 Object.values(transacoesdoUsuario).forEach((transacao: any) => {
                   if (transacao.status === "Ativa" || transacao.status === "Editada") {
-                    transacoesEncontradas.push(transacao as Transacao);
+                    transacoesEncontradas.push(transacao as TransacaoData);
                   }
                 });
               }
@@ -104,115 +105,75 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
     setidTransacaoSelecionada(id);
     const currentMonthTransactions =
       transacoesMensais[format(mesSelecionado!, "MM-yyyy")] || [];
-    const foundTransaction = currentMonthTransactions.find((transacao) => {
-      return transacao.idTransacao === id;
-    });
-    settransacaoSelecionada(foundTransaction || null);
+    const foundTransaction = currentMonthTransactions.find(
+      (transacao) => transacao.idTransacao === id
+    );
+    if (foundTransaction && foundTransaction.tipoTransacao && foundTransaction.valor !== undefined) {
+      const transacao = new Transacao(
+        foundTransaction.tipoTransacao,
+        foundTransaction.valor,
+        userIdAtual || "",
+        0, 
+        0, 
+        foundTransaction.idTransacao,
+        foundTransaction.historico
+      );
+      settransacaoSelecionada(transacao);
+    } else {
+      console.error("Transação inválida selecionada:", foundTransaction);
+      settransacaoSelecionada(null);
+    }
   };
 
   const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (transacaoSelecionada) {
-      settransacaoSelecionada({
-        ...transacaoSelecionada,
-        valor: parseFloat(event.target.value) || 0,
-      });
+      const novoValor = parseFloat(event.target.value) || 0;
+      settransacaoSelecionada(
+        new Transacao(
+          transacaoSelecionada.tipo,
+          novoValor,
+          transacaoSelecionada.idconta,
+          transacaoSelecionada.saldoAnterior,
+          transacaoSelecionada.saldo,
+          transacaoSelecionada.idTransacao,
+          transacaoSelecionada.historico
+        )
+      );
     }
   };
 
   const handleTipoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (transacaoSelecionada) {
-      settransacaoSelecionada({
-        ...transacaoSelecionada,
-        tipoTransacao: event.target.value,
-      });
+      settransacaoSelecionada(
+        new Transacao(
+          event.target.value,
+          transacaoSelecionada.valor,
+          transacaoSelecionada.idconta,
+          transacaoSelecionada.saldoAnterior,
+          transacaoSelecionada.saldo,
+          transacaoSelecionada.idTransacao,
+          transacaoSelecionada.historico
+        )
+      );
     }
   };
 
-  const atualizarTransacao = async () => {
-    if (
-      userIdAtual &&
-      mesSelecionado &&
-      transacaoSelecionada &&
-      transacaoSelecionada.idTransacao
-    ) {
-      const mesAno = format(mesSelecionado, "MM-yyyy");
-      const dataDia = transacaoSelecionada.data;
-      const db = getDatabase();
-  
-      const transacaoRef = ref(
-        db,
-        `transacoes/${mesAno}/${dataDia}/${userIdAtual}/${transacaoSelecionada.idTransacao}`
-      );
-      const saldoRef = ref(db, `contas/${userIdAtual}/saldo`);
-  
+  const handleAtualizarTransacao = async () => {
+    if (transacaoSelecionada && mesSelecionado) {
       try {
-        const snapshot = await get(transacaoRef);
-        const saldoSnapshot = await get(saldoRef);
-  
-        if (snapshot.exists() && saldoSnapshot.exists()) {
-          const dadosAnteriores = snapshot.val();
-          let saldoAtual = parseFloat(saldoSnapshot.val().saldo) || 0;
-  
-          const valorAnterior = parseFloat(dadosAnteriores.valor) || 0;
-          const novoValor = parseFloat(transacaoSelecionada.valor?.toString() || "0");
-  
-          // Removendo o impacto da transação anterior
-          if (dadosAnteriores.tipoTransacao === "deposito") {
-            saldoAtual -= valorAnterior;
-          } else if (dadosAnteriores.tipoTransacao === "transferencia") {
-            saldoAtual += valorAnterior;
-          }
-  
-          // Aplicando o impacto da transação atualizada
-          if (transacaoSelecionada.tipoTransacao === "deposito") {
-            saldoAtual += novoValor;
-          } else if (transacaoSelecionada.tipoTransacao === "transferencia") {
-            saldoAtual -= novoValor;
-          }
-  
-          // Atualizando o histórico
-          const novoHistorico = [
-            ...(dadosAnteriores.historico || []),
-            {
-              dataModificacao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
-              campoModificado: "valor",
-              valorAnterior,
-              valorAtualizado: novoValor,
-            },
-            {
-              dataModificacao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
-              campoModificado: "tipoTransacao",
-              tipoTransacaoAnterior: dadosAnteriores.tipoTransacao,
-              tipoTransacaoAtualizado: transacaoSelecionada.tipoTransacao,
-            },
-          ];
-  
-          // Atualizando no banco
-          await update(transacaoRef, {
-            ...transacaoSelecionada,
-            historico: novoHistorico,
-            status: "Editada",
-          });
-  
-          await update(saldoRef, { saldo: saldoAtual });
-  
-          console.log("Transação e saldo atualizados com sucesso!");
-          onClose();
-        } else {
-          console.error(
-            "Transação ou saldo não encontrados no caminho especificado.",
-            transacaoRef.toString(),
-            saldoRef.toString()
-          );
-        }
+        await transacaoSelecionada.atualizarTransacao(mesSelecionado);
+        console.log("Transação atualizada com sucesso!");
+        onClose();
       } catch (error) {
         console.error("Erro ao atualizar transação:", error);
       }
     } else {
-      console.error("Dados incompletos para atualizar transação.");
+      console.error("Transação ou mês não selecionados:", {
+        transacaoSelecionada,
+        mesSelecionado,
+      });
     }
   };
-  
 
   const currentMonthTransactions = mesSelecionado
     ? transacoesMensais[format(mesSelecionado, "MM-yyyy")] || []
@@ -285,7 +246,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
               <label className="form-label">Tipo</label>
               <select
                 className="form-control"
-                value={transacaoSelecionada.tipoTransacao}
+                value={transacaoSelecionada.tipo}
                 onChange={handleTipoChange}
               >
                 <option value="deposito">Depósito</option>
@@ -300,7 +261,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
             Cancelar
           </button>
           <button
-            onClick={atualizarTransacao}
+            onClick={handleAtualizarTransacao}
             disabled={!transacaoSelecionada}
             className="botaoSalvar"
           >
