@@ -6,11 +6,11 @@
 
 <ul>
   <li><a href="#visao">Visão Geral</a></li>
-  <li>Tecnologias Utilizadas</li>
-  <li>Funcionalidades</li>
-  <li>Pré-requisitos</li>
-  <li>Instalação</li>
-  <li>Como Usar</li>
+  <li><a href="#tecnologias">Tecnologias Utilizadas</a></li>
+  <li><a href="#funcionalidades">Funcionalidades</a></li>
+  <li><a href="#prerequisitos">Pré-requisitos</a></li>
+  <li><a href="#instalacao">Instalação</a></li>
+  <li><a href="#comousar">Como Usar</a></li>
   <li>Estrutura do Projeto</li>
   <li>Fluxo do Sistema</li>
   <li>Contribuição</li>
@@ -28,3 +28,58 @@
   <li>Editar Transação: Funcionalidade onde o usuário seleciona na lista de transações do mês, as transações existentes e modifica valor e tipo.</li>  
   <li>**Excluir Transação**: Esta é uma funcionalidade que estava implicita no Figma, mas que não foi descrita para o Tech Challenge, contudo creio que seria um bom exercício e implementei ela no sistema.</li>  
 </ul></p>
+
+<h2 id="tecnologias">Tecnologias Utilizadas</h2>
+<p>Para as tecnologias usadas, escolhi aquelas que tenho mais familiaridade e que eu uso no meu dia a dia.</p>
+<p>
+  <ul>
+    <li>Next.js;</li>
+    <li>Bootstrap</li>
+    <li>CSS</li>
+    <li>Node.JS</li>
+    <li>Firebase</li>
+  </ul>
+</p>
+
+<h2 id="funcionalidades">Funcionalidades</h2>
+<p>As funcionalidades apresentadas no sistema, são as propostas para o Tech Challenge. Ou seja tem as que foram propostas no PDF que estava disponível no Portal, com o acréscimo daquelas que julguei interessantes para complementar o desafio.</p>
+<p>
+  <ul>
+    <li>Página inicial com saldo e extrato de transações.</li>
+    <li>Listagem de transações com opções para visualizar, editar e excluir.</li>
+    <li>Modal para adicionar e editar transações.</li>
+    <li>Edição dos dados do usuário, com exceção do email.</li>
+    <li>Cadastro de Usuário (sem a opção de refedinir senha no modal) - Área Deslogada do site</li>
+    <li>Login funcional em modal - Área Deslogada do site</li>
+  </ul>
+</p>
+
+<h2 id="prerequisitos">Pré Requisitos</h2>
+<p>Para os pré requisitos para o uso do sistema temos:</p>
+<ul>
+  <li>Node.js</li>
+  <li>Gerenciador de pacotes (NPM)</li>
+  <li>Repositório do projeto clonado.</li>
+</ul>
+
+<h2 id="instalacao">Instalação</h2>
+<p>Para instalar na sua máquina o sistema siga os passos abaixo:</p>
+<p>
+  <ol>
+    <li>Clone o repositório <br>
+    <code>git clone https://github.com/CleudemirFaccoJr/FIAP.git</code>
+    </li>
+    <li>Instale as dependências:<br/>
+    <code>npm install bootstrap</code>
+    <code>npm install firebase</code>
+    </li>
+    <li>Inicie o servidor de desenvolvimento<br/>
+    <code>npm run dev</code>
+    </li>
+  </ol>
+</p>
+
+<h2 id="comousar">Como Usar</h2>
+<p>Acesse http://localhost:3000 no navegador.</p>
+<p>No topo superior do site, você pode navegar entre a parte deslogada do site, e visualizar Serviços [COMPLEMENTAR AQUI]</p>
+<p>Além disso, você tem 2 botões no menu: Criar Conta (onde você se cadastra e cria uma conta no Bytebank) e o Acessar Minha Conta - que como o nome diz trará o modal de acesso para a sua conta utilizando email e senha.</p>
