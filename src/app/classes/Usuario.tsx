@@ -1,6 +1,6 @@
-import { auth,database } from "../../lib/firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { ref, set } from "firebase/database";
+import { auth, database } from "../../lib/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from "firebase/auth";
+import { ref, update } from "firebase/database";
 
 export class Usuario {
   nome: string;
@@ -13,17 +13,12 @@ export class Usuario {
     this.senha = senha;
   }
 
-  // Cadastro de usuário com tratamento de erro
   async cadastrar(): Promise<void> {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        this.email,
-        this.senha
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.senha);
       const userId = userCredential.user.uid;
 
-      await set(ref(database, `contas/${userId}`), {
+      await update(ref(database, `contas/${userId}`), {
         idconta: userId,
         nomeUsuario: this.nome,
         emailUsuario: this.email,
@@ -32,13 +27,10 @@ export class Usuario {
       window.alert("Sucesso! Sua conta foi cadastrada.");
     } catch (error) {
       console.error(error);
-      throw new Error(
-        "Erro ao cadastrar o usuário. Tente novamente mais tarde."
-      );
+      throw new Error("Erro ao cadastrar o usuário. Tente novamente mais tarde.");
     }
   }
 
-  // Login de usuário com tratamento de erro
   async login(): Promise<any> {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, this.email, this.senha);
@@ -46,7 +38,6 @@ export class Usuario {
       return user;
     } catch (error) {
       let erroMessage = "Erro desconhecido. Tente novamente.";
-
       if (error instanceof Error && "code" in error) {
         switch (error.code) {
           case "auth/internal-error":
@@ -61,8 +52,52 @@ export class Usuario {
             break;
         }
       }
-
       throw new Error(erroMessage);
+    }
+  }
+
+  async atualizarUsuario(currentUserId: string, newNome: string, newEmail: string, newSenha: string): Promise<void> {
+    try {
+      if (!auth.currentUser) {
+        throw new Error("Usuário não está autenticado.");
+      }
+
+      // Atualizar a senha no Firebase Authentication
+      if (newSenha && newSenha.length >= 6) {
+        try {
+          await updatePassword(auth.currentUser, newSenha);
+        } catch (error: any) {
+          if (error.code === "auth/requires-recent-login") {
+            throw new Error("Por favor, faça login novamente para atualizar a senha.");
+          } else if (error.code === "auth/weak-password") {
+            throw new Error("A senha deve ter pelo menos 6 caracteres.");
+          }
+          throw error;
+        }
+      }
+
+      // Atualizar dados no Firebase Realtime Database
+      await update(ref(database, `contas/${currentUserId}`), {
+        idconta: currentUserId,
+        nomeUsuario: newNome,
+        emailUsuario: newEmail,
+      });
+
+      // Atualização local dos dados do usuário
+      this.nome = newNome;
+      this.email = newEmail;
+      if (newSenha) {
+        this.senha = newSenha;
+      }
+
+      window.alert("Sucesso! Dados do usuário atualizados.");
+    } catch (error) {
+      console.error(error);
+      let errorMessage = "Erro ao atualizar os dados do usuário. Tente novamente mais tarde.";
+      if (error instanceof Error && "message" in error) {
+        errorMessage = error.message;
+      }
+      throw new Error(errorMessage);
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "../../styles/dashboard.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useEffect, useState } from "react";
 import SaldoComponent from "./components/saldoComponent";
 import DashboardNavbar from "./components/dashboardnavbar";
