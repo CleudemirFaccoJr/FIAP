@@ -87,6 +87,50 @@
 <h2 id="estrutura">Estrutura do Projeto</h2>
 <p>Para otimizar a organização do projeto, o que pensei foi em separar a área deslogada na raiz da pasta app. Enquanto que para a área logada, coloquei sob o nome de Dashboard. Dessa forma a área logada e deslogada ficam separadas.</p>
 <p>Então para fins de esclarecimento a estrutura do projeto é:</p>
+
+  ```
+src/
+  ├── app/
+    ├── classes/
+      ├── Extrato.tsx
+      ├── Transacao.tsx
+      ├── Usuario.tsx
+    ├── dashboard/
+      ├── page.tsx
+      ├── components/
+        ├── dashboardnavbar.tsx
+        ├── extratoCompletoComponent.tsx
+        ├── extratoComponent.tsx
+        ├── meuscartoesComponent.tsx
+        ├── modaleditarComponent.tsx
+        ├── modalexcluirComponent.tsx
+        ├── novatransacaoComponent.tsx
+        ├── saldoComponent.tsx
+        ├── servicosComponent.tsx
+    ├── minha-conta/
+      ├── page.tsx
+    ├── servicos/
+      ├── page.tsx
+    ├── sobre/
+      ├── page.tsx
+    ├── components/
+      ├── abrirModal.tsx
+      ├── footer.tsx
+      ├── modalLogin.tsx
+      ├── navbar.tsx
+    ├── lib/
+      ├── firebase.ts
+    ├── styles/
+      ├── dashboard.css
+      ├── dashboardnavbar.css
+      ├── footer.css
+      ├── minhaconta.css
+      ├── notfound.css
+      ├── style.css
+  ```
+
+
 <h2 id="fluxo">Fluxo do Sistema</h2>
+<p>Para navegar no sistema, inicie pela parte deslogada.</p>
 <h2 id="contribuicao">Contribuição</h2>
 <h2 id="licenca">Licença</h2>
