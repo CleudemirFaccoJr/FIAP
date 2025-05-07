@@ -11,10 +11,10 @@
   <li><a href="#prerequisitos">Pré-requisitos</a></li>
   <li><a href="#instalacao">Instalação</a></li>
   <li><a href="#comousar">Como Usar</a></li>
-  <li>Estrutura do Projeto</li>
-  <li>Fluxo do Sistema</li>
-  <li>Contribuição</li>
-  <li>Licença</li>
+  <li><a href="#estrutura">Estrutura do Projeto</a></li>
+  <li><a href="#fluxo">Fluxo do Sistema</a></li>
+  <li><a href="#contribuicao">Contribuição</a></li>
+  <li><a href="#licenca">Licença</a></li>
 </ul>
 
 <h2 id="Visao">Visão Geral</h2>
@@ -83,3 +83,10 @@
 <p>Acesse http://localhost:3000 no navegador.</p>
 <p>No topo superior do site, você pode navegar entre a parte deslogada do site, e visualizar Serviços [COMPLEMENTAR AQUI]</p>
 <p>Além disso, você tem 2 botões no menu: Criar Conta (onde você se cadastra e cria uma conta no Bytebank) e o Acessar Minha Conta - que como o nome diz trará o modal de acesso para a sua conta utilizando email e senha.</p>
+
+<h2 id="estrutura">Estrutura do Projeto</h2>
+<p>Para otimizar a organização do projeto, o que pensei foi em separar a área deslogada na raiz da pasta app. Enquanto que para a área logada, coloquei sob o nome de Dashboard. Dessa forma a área logada e deslogada ficam separadas.</p>
+<p>Então para fins de esclarecimento a estrutura do projeto é:</p>
+<h2 id="fluxo">Fluxo do Sistema</h2>
+<h2 id="contribuicao">Contribuição</h2>
+<h2 id="licenca">Licença</h2>
