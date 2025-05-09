@@ -13,11 +13,10 @@
   <li><a href="#comousar">Como Usar</a></li>
   <li><a href="#estrutura">Estrutura do Projeto</a></li>
   <li><a href="#fluxo">Fluxo do Sistema</a></li>
-  <li><a href="#contribuicao">Contribuição</a></li>
   <li><a href="#licenca">Licença</a></li>
 </ul>
 
-<h2 id="Visao">Visão Geral</h2>
+<h2 id="visao">Visão Geral</h2>
 <p>O desafio proposto neste Tech Challenge da Fase 1 é desenvolver um sistema usando Next.Js e seguir um Design System, criando uma interface que permite ao usuário gerenciar transações financeiras.<br/> Um ponto importante a se frisar, é que embora o layout proposto para o Tech Challenge estivesse viável e até mesmo simples de desenvolver, creio que não seguia diretrizes mais modernas quanto ao layout, portanto eu mesmo desenhei um novo layout para o Tech Challenge. De modo que disponibilizo aqui o link para o mesmo, caso queiram comparar com o que foi entregue no resultado final. <br/> Para agilizar meu trabalho, não contemplei TODAS as telas que existiam no Figma da FIAP, mas o que foi solicitado para o Tech Challenge, está presente no sistema. </p>
 <p><a href="https://www.figma.com/proto/114lxIxboA0NfK5u96nNGu/Bytebank_TechChallenge?node-id=0-1&t=8iyRHAb3QeHUkHbV-1" target="_blank">Design System Figma (Cleudemir)</a></p>
 <p>Além disso, para registro o que ficou entendido é que para o Tech Challenge, as seguintes telas deveriam ser entregues:
@@ -132,5 +131,21 @@ src/
 
 <h2 id="fluxo">Fluxo do Sistema</h2>
 <p>Para navegar no sistema, inicie pela parte deslogada.</p>
-<h2 id="contribuicao">Contribuição</h2>
+![image](https://github.com/user-attachments/assets/e4dafac6-63e2-42d3-8781-dc37ff8a3704)
+> Imagem da Home "deslogada" do Bytebank
+
+<p>Caso o usuário não tenha conta, basta clicar em qualquer botão "Abrir Minha Conta" que o modal para o cadastro na plataforma abrirá. <br/> Caso o usuário tenha cadastro na conta, basta clicar em "Já tenho conta".</p>
+
+![image](https://github.com/user-attachments/assets/9afc7801-31e7-47a7-9982-834f4382fc00)
+> Imagem demonstrando modal de Criar Conta.
+
+![image](https://github.com/user-attachments/assets/898a298d-8a74-466b-a36e-9acae21e2589)
+> Imagem demonstrando modal de Entrar na conta do Usuário.
+
+<p>Após o cadastro o usuário pode clicar no botão para entrar na conta, e acessar o Dashboard.</p>
+
+![image](https://github.com/user-attachments/assets/8926c2be-4932-4227-b1f0-0485ea4180e1)
+> Imagem demonstrando Dashboard do sistema. O usuário pode acessar os módulos simplesmente clicando nas áreas desejadas.
+
 <h2 id="licenca">Licença</h2>
+<p>MIT License</p>
