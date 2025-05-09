@@ -131,7 +131,7 @@ src/
 
 <h2 id="fluxo">Fluxo do Sistema</h2>
 <p>Para navegar no sistema, inicie pela parte deslogada.</p>
-![image](https://github.com/user-attachments/assets/2552bb04-5fd6-45f3-b729-b5467d4e7470)
+![image](https://github.com/user-attachments/assets/e4dafac6-63e2-42d3-8781-dc37ff8a3704)
 > Imagem da Home "deslogada" do Bytebank
 
 <p>Caso o usuário não tenha conta, basta clicar em qualquer botão "Abrir Minha Conta" que o modal para o cadastro na plataforma abrirá. <br/> Caso o usuário tenha cadastro na conta, basta clicar em "Já tenho conta".</p>
