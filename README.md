@@ -131,6 +131,7 @@ src/
 
 <h2 id="fluxo">Fluxo do Sistema</h2>
 <p>Para navegar no sistema, inicie pela parte deslogada.</p>
+
 ![image](https://github.com/user-attachments/assets/e4dafac6-63e2-42d3-8781-dc37ff8a3704)
 > Imagem da Home "deslogada" do Bytebank
 
