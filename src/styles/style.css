@@ -233,5 +233,10 @@ body{
     .linha-destaque {
       width: 40px;
     }
+
+     .modal-content{
+    padding-left: 15px;
+    padding-right: 15px;
+  }
   }
 }  
