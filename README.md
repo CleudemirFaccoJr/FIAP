@@ -80,8 +80,21 @@
 
 <h2 id="comousar">Como Usar</h2>
 <p>Acesse http://localhost:3000 no navegador.</p>
-<p>No topo superior do site, você pode navegar entre a parte deslogada do site, e visualizar Serviços [COMPLEMENTAR AQUI]</p>
-<p>Além disso, você tem 2 botões no menu: Criar Conta (onde você se cadastra e cria uma conta no Bytebank) e o Acessar Minha Conta - que como o nome diz trará o modal de acesso para a sua conta utilizando email e senha.</p>
+<p>No menu temos as opções de Sobre, Serviços, Abrir minha Conta e Já tenho conta.</p>
+<p>Caso você já tenha conta, basta clicar no botão Já tenho conta. Preencha seu email e senha, clique Acessar. Após isso você será redirecionado ao dashboard.</p>
+<p>Contudo, caso não tenha conta, basta clicar em Abrir minha Conta, preencher seu nome completo, email e definir uma senha. Aceitar as condições de tratamento, e clicar em Criar Conta.</p>
+<p>Mais abaixo na <b>Home</b>, temos um banner para criar a conta, além disso temos as vantagens do banco também.</p>
+<p>Já nas páginas <b>Sobre</b> e <b>Serviços</b> temos apenas os textos de Lorem Ipsum para preencher, uma vez que no projeto do Figma não temos definição de conteúdo.</p>
+
+<i><b>Dashboard</b></i>
+<p>Em Dashboard, assim que você loga, você já tem um panorama da sua organização financeira. temos um bloco com saldo, um com o extrato das transações ativas, e por fim temos a sessão de Nova Transação. Além disso, temos o botão de Ver Extrato Completo, que ao clicar, visualizamos TODAS as transações. Tanto as canceladas, editar e ativas.</p>
+<p>Já no bloco de Extrato, temos os botões de Editar e Excluir. Ao clicar, ele abre um modal, onde você seleciona um mês, seleciona as transações que existem. A partir dai você pode alterar o tipo da transação e o valor.<br/> Já o bloco de Excluir, você repete o processo, seleciona o mês e as transações que existem são carregadas. Ai basta clicar em Excluir Transação. Nesse ponto rola um refresh da página, o saldo e o extrato é atualizado.</p>
+
+<i><b>Minha conta</b></i>
+<p>Em minha conta, o usuário pode alterar o nome completo que ele usa em sua conta, e preencher o campo Senha para alterar a mesma. Caso ele não queira alterar a senha, basta deixar o campo em branco, que nada será alterado. O email não é possível alterar, pois é o que o usuário usa para acessar.</p>
+
+<i><b>Outros Serviços</b></i>
+<p>Em outros serviços, temos o serviço de Meus Cartões. Ali temos apenas de forma ilustrativa o cartãoo físico e o cartão virtual.</p>
 
 <h2 id="estrutura">Estrutura do Projeto</h2>
 <p>Para otimizar a organização do projeto, o que pensei foi em separar a área deslogada na raiz da pasta app. Enquanto que para a área logada, coloquei sob o nome de Dashboard. Dessa forma a área logada e deslogada ficam separadas.</p>
