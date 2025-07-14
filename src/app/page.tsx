@@ -1,13 +1,21 @@
 'use client';
 
 import '@/styles/style.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Image from 'next/image';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import AbrirContaModal from '@/components/abrirModal';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+  useEffect(() => {
+      // Importa dinamicamente o arquivo JS do Bootstrap apenas no ambiente do navegador
+      if (typeof window !== 'undefined') {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require('bootstrap/dist/js/bootstrap.bundle.min.js');
+      }
+    }, []); 
+
   return (
       <main>
         <Navbar />

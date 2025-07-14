@@ -11,25 +11,36 @@ import { Transacao } from "@/app/classes/Transacao";
 
 registerLocale("pt-BR", ptBR);
 
+interface TransacaoHistorico {
+  dataModificacao: string;
+  campoModificado: string;
+  valorAnterior: unknown;
+  valorAtualizado: unknown;
+}
+
 interface TransacaoData {
   valor?: number;
   tipoTransacao?: string;
   data: string;
   hora: string;
   idTransacao: string;
-  historico?: Array<{
-    dataModificacao: string;
-    campoModificado: string;
-    valorAnterior: any;
-    valorAtualizado: any;
-  }>;
+  historico?: TransacaoHistorico[];
+  status?: string;
 }
 
 interface EditarTransacaoProps {
   onClose: () => void;
+  isOpen: boolean;
 }
 
-const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
+// Tipagem para os dados vindos do Firebase
+interface DiasTransacao {
+  [userId: string]: {
+    [transacaoId: string]: TransacaoData;
+  };
+}
+
+const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose, isOpen }) => {
   const [mesSelecionado, setmesSelecionado] = useState<Date | null>(null);
   const [transacoesMensais, settransacoesMensais] = useState<{ [key: string]: TransacaoData[] }>({});
   const [idTransacaoSelecionada, setidTransacaoSelecionada] = useState<string | null>(null);
@@ -56,20 +67,18 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
         try {
           const snapshot = await get(transacoesRef);
           if (snapshot.exists()) {
-            const data = snapshot.val();
+            const data: Record<string, DiasTransacao> = snapshot.val();
             const transacoesEncontradas: TransacaoData[] = [];
 
-            Object.entries(data).forEach(([_, diasTransacao]) => {
+            Object.entries(data).forEach(([, diasTransacao]) => {
               if (
                 diasTransacao &&
-                (diasTransacao as Record<string, any>)[userIdAtual]
+                diasTransacao[userIdAtual]
               ) {
-                const transacoesdoUsuario = (
-                  diasTransacao as Record<string, any>
-                )[userIdAtual];
-                Object.values(transacoesdoUsuario).forEach((transacao: any) => {
+                const transacoesdoUsuario = diasTransacao[userIdAtual];
+                Object.values(transacoesdoUsuario).forEach((transacao) => {
                   if (transacao.status === "Ativa" || transacao.status === "Editada") {
-                    transacoesEncontradas.push(transacao as TransacaoData);
+                    transacoesEncontradas.push(transacao);
                   }
                 });
               }
@@ -94,7 +103,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
     carregarTransacaoMes();
   }, [userIdAtual, mesSelecionado]);
 
-  const handleMudancaMes = (date: Date) => {
+  const handleMudancaMes = (date: Date | null) => {
     setmesSelecionado(date);
   };
 
@@ -184,7 +193,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
     : "Selecione o Mês";
 
   return (
-    <div className="modal-overlay">
+    <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`}>
       <div className="conteudoModal">
         <h3>Editar Transação</h3>
         <div className="mb-3">

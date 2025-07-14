@@ -20,12 +20,20 @@ interface TransacaoData {
   status: string;
 }
 
+// Tipagem para os dados vindos do Firebase
+interface DiasTransacao {
+  [userId: string]: {
+    [transacaoId: string]: TransacaoData;
+  };
+}
+
 interface ExcluirTransacaoModalProps {
   onClose: () => void;
+  isOpen: boolean;
 }
 
 const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
-  onClose,
+  onClose, isOpen
 }) => {
   const [userIdAtual, setUserIdAtual] = useState<string | null>(null);
   const [dataSelecionada, setDataSelecionada] = useState<Date | null>(new Date());
@@ -55,15 +63,15 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
       try {
         const snapshot = await get(transacoesRef);
         if (snapshot.exists()) {
-          const data = snapshot.val();
+          const data: Record<string, DiasTransacao> = snapshot.val();
 
-          Object.entries(data).forEach(([_, diasTransacao]) => {
-            if ((diasTransacao as Record<string, any>)[userIdAtual]) {
-              const transacoesUsuario = (diasTransacao as Record<string, any>)[userIdAtual];
-              Object.values(transacoesUsuario).forEach((transacao: any) => {
+          Object.entries(data).forEach(([, diasTransacao]) => {
+            if (diasTransacao[userIdAtual]) {
+              const transacoesUsuario = diasTransacao[userIdAtual];
+              Object.values(transacoesUsuario).forEach((transacao) => {
                 // Filtrar apenas transações com status "Ativa" ou "Editada"
                 if (transacao.status === "Ativa" || transacao.status === "Editada") {
-                  transacoesDoMes.push(transacao as TransacaoData);
+                  transacoesDoMes.push(transacao);
                 }
               });
             }
@@ -124,7 +132,7 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
   const legendaMesAno = mesSelecionado ? format(mesSelecionado, "MM/yyyy") : "Selecione o Mês";
 
   return (
-    <div className="modal-overlay">
+    <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`}>
       <div className="conteudoModal">
         <h3>Excluir Transação</h3>
         <div className="mb-3">

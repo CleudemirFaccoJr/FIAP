@@ -15,8 +15,8 @@ export class Transacao {
   historico?: Array<{
     dataModificacao: string;
     campoModificado: string;
-    valorAnterior: any;
-    valorAtualizado: any;
+    valorAnterior: unknown;
+    valorAtualizado: unknown;
   }>;
 
   constructor(
@@ -29,8 +29,8 @@ export class Transacao {
     historico?: Array<{
       dataModificacao: string;
       campoModificado: string;
-      valorAnterior: any;
-      valorAtualizado: any;
+      valorAnterior: unknown;
+      valorAtualizado: unknown;
     }>
   ) {
     this.tipo = tipo;

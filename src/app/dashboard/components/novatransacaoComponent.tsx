@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
 import { database } from "../../../lib/firebase";
-import { ref, set, get, update } from "firebase/database";
+import { ref, get } from "firebase/database";
 import { Transacao } from "@/app/classes/Transacao";
 
 const NovaTransacaoComponent = () => {
@@ -89,7 +89,8 @@ const NovaTransacaoComponent = () => {
       setTipo("");
       setValor("");
     } catch (error) {
-      alert(`Erro ao salvar a transação: ${error.message}. Tente novamente.`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Erro ao salvar a transação: ${errorMessage}. Tente novamente.`);
     }
   };
 

@@ -41,8 +41,10 @@ export class Extrato {
     if (snapshot.exists()) {
       snapshot.forEach((mesSnapshot) => {
         const dias = mesSnapshot.val();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Object.values(dias).forEach((usuarios: any) => {
           if (usuarios[this.userId]) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Object.values(usuarios[this.userId]).forEach((transacao: any) => {
               if (transacao.status === "Ativa" || transacao.status === "Editada") {
                 transacoes.push({
@@ -72,6 +74,7 @@ export class Extrato {
         Object.keys(dias).forEach((dia) => {
           const transacoesDia = dias[dia][this.userId];
           if (transacoesDia) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Object.values(transacoesDia).forEach((transacao: any) => {
               if (transacao.status === "Ativa" || transacao.status === "Editada" || transacao.status === "Excluída") {
                 transacoes.push({

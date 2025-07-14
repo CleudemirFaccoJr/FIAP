@@ -2,7 +2,6 @@
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "../../styles/dashboard.css";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useEffect, useState } from "react";
 import SaldoComponent from "./components/saldoComponent";
 import DashboardNavbar from "./components/dashboardnavbar";
@@ -39,7 +38,15 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dataCompleta, setDataCompleta] = useState("");
   const [primeiroNome, setPrimeiroNome] = useState("");
-  const [componenteAtivo, setComponenteAtivo] = useState<string>(""); // Novo estado
+  const [componenteAtivo, setComponenteAtivo] = useState<string>("");
+
+  useEffect(() => {
+    // Importa dinamicamente o arquivo JS do Bootstrap apenas no ambiente do navegador
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('bootstrap/dist/js/bootstrap.bundle.min.js');
+    }
+  }, []); 
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
