@@ -2,13 +2,11 @@ import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { getAuth } from "firebase/auth";
-import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import EditarTransacaoModal from "./modaleditarComponent";
 import ExcluirTransacaoModal from "./modalexcluirComponent";
 import { Extrato } from "@/app/classes/Extrato";
+import GraficoResumo from "./graficosComponent"; 
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface TransacaoData {
   idTransacao: string;
@@ -53,26 +51,7 @@ const ExtratoComponent = () => {
 
   const { entradas, saidas } = extrato ? extrato.calcularEntradaseSaidas(transacoes) : { entradas: 0, saidas: 0 };
 
-  const data = {
-    labels: ["Entradas", "Saídas"],
-    datasets: [
-      {
-        label: "R$",
-        data: [entradas, saidas],
-        backgroundColor: ["#4CAF50", "#F44336"],
-        borderColor: ["#388E3C", "#D32F2F"],
-        borderWidth: 1,
-      },
-    ],
-  };
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      title: { display: false },
-    },
-  };
 
   const abrirModalEditar = () => setModalEditarAberto(true);
   const fecharModalEditar = () => setModalEditarAberto(false);
@@ -103,13 +82,7 @@ const ExtratoComponent = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-md-4 col-sm-12">
-            <div className="extrato-item">
-              <div className="extrato-header">Últimos 30 dias</div>
-              <Bar data={data} options={options} />
-            </div>
-          </div>
-          <div className="col-md-8 col-sm-12">
+          <div className="col-md-12 col-sm-12">
             <div className="extrato-item">
               <div className="row">
               <div className="extrato-header">Últimas Transações</div>

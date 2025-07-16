@@ -260,6 +260,8 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose, isOpen 
               >
                 <option value="deposito">Depósito</option>
                 <option value="transferencia">Transferência</option>
+                <option value="pagamento">Pagamento</option>
+                <option value="investimento">Investimento</option>
               </select>
             </div>
           </>

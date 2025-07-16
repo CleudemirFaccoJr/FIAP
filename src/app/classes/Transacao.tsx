@@ -11,6 +11,8 @@ export class Transacao {
   data: string;
   hora: string;
   status: string;
+  descricao: string;
+  categoria: string;
   idTransacao?: string;
   historico?: Array<{
     dataModificacao: string;
@@ -25,6 +27,8 @@ export class Transacao {
     idconta: string,
     saldoAnterior: number,
     saldo: number,
+    descricao: string,
+    categoria: string,
     idTransacao?: string,
     historico?: Array<{
       dataModificacao: string;
@@ -40,6 +44,8 @@ export class Transacao {
     this.saldo = saldo;
     this.idTransacao = idTransacao;
     this.historico = historico;
+    this.descricao = descricao;
+    this.categoria = categoria;
 
     const dataAtual = new Date();
     this.data = `${String(dataAtual.getDate()).padStart(2, "0")}-${String(
@@ -68,6 +74,8 @@ export class Transacao {
         data: this.data,
         hora: this.hora,
         status: this.status,
+        descricao: this.descricao,
+        categoria: this.categoria,
       });
 
       const contaRef = ref(database, `contas/${this.idconta}/saldo`);
@@ -172,6 +180,8 @@ export class Transacao {
           hora: this.hora,
           status: "Editada",
           historico: novoHistorico,
+          descricao: this.descricao,
+          categoria: this.categoria,
         });
 
         await update(saldoRef, { saldo: saldoAtual });

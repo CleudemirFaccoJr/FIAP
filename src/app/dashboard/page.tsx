@@ -13,6 +13,7 @@ import { auth } from "../../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, get } from "firebase/database";
 import ExtratoCompletoComponent from "./components/extratoCompletoComponent";
+import GraficoResumo from "./components/graficosComponent";
 
 const formatarDataCompleta = () => {
   const agora = new Date();
@@ -121,18 +122,31 @@ const Dashboard = () => {
             <h5 className="nomeUsuario">{primeiroNome || "Usuário"}</h5>
             <p className="diaSemana">{dataCompleta}</p>
           </div>
+          {/* Aqui temos o componente de Saldo. Ele possui: Saldo, Entradas, Saidas e Investimentos */}
+          <div className="row">
+            <div className="col-md-12 col-sm-12">
+              <SaldoComponent userId={userId} />
+            </div>
+          </div>
+
+          {/* Aqui temos o componente de Gráficos. Ele possui: Fluxo de Caixa, Evolução do Saldo e Gastos por Categoria */}
+          <div className="row">
+            <div className="col-md-12 col-sm-12 mb-3">
+              <GraficoResumo userId={userId} />
+            </div>
+          </div>
+
+          {/* Aqui temos o componente de Nova Transação e Extrato */}
           <div className="row">
             <div className="col-md-4 col-sm-12">
-              <SaldoComponent userId={userId} />
-              <br />
               <NovaTransacaoComponent />
-              <br />
             </div>
             <div className="col-md-8 col-sm-12">
               <ExtratoComponent />
               <a href="#" className="extrato-link float-right" onClick={() => setComponenteAtivo("extrato-completo")}>Ver Extrato Completo</a>
             </div>
           </div>
+
           <div className="row">
             <div className="col-md-12">
               <div className="outrosServicos">{renderComponente()}</div>

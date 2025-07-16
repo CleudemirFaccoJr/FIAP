@@ -64,6 +64,118 @@ body {
   color: #777777;
 }
 
+
+/* Entradas Card CSS */
+.entradas-card {
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f7f7f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.entradas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #004d61;
+}
+
+.entradas-conteudo h2 {
+  margin: 0;
+  font-size: 30x;
+  font-weight: bold;
+  color: #333333;
+}
+
+.entradas-header h4 {
+  margin: 0;
+  font-size: 20px;
+  color: #006118;
+  border-bottom: 2px solid #006118;
+  padding-bottom: 2px;
+  font-weight: 800;
+}
+
+.entradas-conteudo {
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+
+/* Saída Card CSS */
+.saidas-card {
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f7f7f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.saidas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #004d61;
+}
+
+.saidas-conteudo h2 {
+  margin: 0;
+  font-size: 30x;
+  font-weight: bold;
+  color: #333333;
+}
+
+.saidas-header h4 {
+  margin: 0;
+  font-size: 20px;
+  color: #f10101;
+  border-bottom: 2px solid #f10101;
+  padding-bottom: 2px;
+  font-weight: 800;
+}
+
+.saidas-conteudo {
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+
+/* Investimentos Card CSS */
+.investimentos-card {
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f7f7f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.investimentos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #004d61;
+}
+
+.investimentos-conteudo h2 {
+  margin: 0;
+  font-size: 30x;
+  font-weight: bold;
+  color: #333333;
+}
+
+.investimentos-header h4 {
+  margin: 0;
+  font-size: 20px;
+  color: #2563eb;
+  border-bottom: 2px solid #2563eb;
+  padding-bottom: 2px;
+  font-weight: 800;
+}
+
+.investimentos-conteudo {
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+
 /* CSS para o Componente de Extrato */
 .extrato-card {
   background-color: #ffffff;
@@ -146,6 +258,18 @@ body {
   text-transform: capitalize;
 }
 
+.extrato-tipo-investimento {
+    color: #2563eb;
+    font-size: 12px;
+    text-transform: capitalize;
+}
+
+.extrato-tipo-pagamento {
+    color: #fd4800;
+    font-size: 12px;
+    text-transform: capitalize;
+}
+
 /* CSS para Nova Transação */
 .nova-transacao-card {
   background-color: #cbcbcb;
@@ -184,6 +308,14 @@ body {
   color: #333;
   margin-bottom: 15px;
   box-sizing: border-box;
+}
+
+.descricao-textarea {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .concluir-button {
