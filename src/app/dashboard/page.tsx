@@ -146,7 +146,6 @@ const Dashboard = () => {
               <a href="#" className="extrato-link float-right" onClick={() => setComponenteAtivo("extrato-completo")}>Ver Extrato Completo</a>
             </div>
           </div>
-
           <div className="row">
             <div className="col-md-12">
               <div className="outrosServicos">{renderComponente()}</div>
