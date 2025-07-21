@@ -3,9 +3,10 @@ import { getAuth } from "firebase/auth";
 import "../../../styles/dashboard.css";
 import "../../../styles/style.css";
 import { Extrato } from "@/app/classes/Extrato";
-import { faArrowDown, faArrowUp, faPiggyBank, faMoneyBillTrendUp, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons';
+import { faPiggyBank, faMoneyBillTrendUp, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface TransacaoData {
   idTransacao: string;
@@ -14,6 +15,7 @@ interface TransacaoData {
   data: string;
   hora: string;
   status: string;
+  descricao?: string;
 }
 
 const ExtratoCompletoComponent = () => {
@@ -22,13 +24,14 @@ const ExtratoCompletoComponent = () => {
 
   // Filtros
   const [mesSelecionado, setMesSelecionado] = useState("");
-  const [filtroDataInicio, setFiltroDataInicio] = useState("");
-  const [filtroDataFim, setFiltroDataFim] = useState("");
   const [filtroValorMin, setFiltroValorMin] = useState("");
   const [filtroValorMax, setFiltroValorMax] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [buscaTexto, setBuscaTexto] = useState("");
+  const [periodo, setPeriodo] = useState<[Date | null, Date | null]>([null, null]);
+
+  const [dataInicio, dataFim] = periodo;
 
   useEffect(() => {
     const auth = getAuth();
@@ -57,17 +60,15 @@ const ExtratoCompletoComponent = () => {
     setMesSelecionado(event.target.value);
   };
 
-  // 🔍 Aplicação dos filtros
+  // Aplicação dos filtros
   const transacoesFiltradas = transacoes
     .filter((t) => !mesSelecionado || t.mes === mesSelecionado)
     .filter((t) => !filtroTipo || t.transacao.tipoTransacao === filtroTipo)
-    .filter((t) => !filtroStatus || t.transacao.status === filtroStatus)
+    .filter((t) => !filtroStatus || t.transacao.status.toLowerCase() === filtroStatus.toLowerCase())
     .filter((t) => {
-      if (!filtroDataInicio && !filtroDataFim) return true;
+      if (!dataInicio && !dataFim) return true;
       const data = new Date(t.transacao.data.split("/").reverse().join("-"));
-      const inicio = filtroDataInicio ? new Date(filtroDataInicio) : null;
-      const fim = filtroDataFim ? new Date(filtroDataFim) : null;
-      return (!inicio || data >= inicio) && (!fim || data <= fim);
+      return (!dataInicio || data >= dataInicio) && (!dataFim || data <= dataFim);
     })
     .filter((t) => {
       const valor = t.transacao.valor;
@@ -86,6 +87,17 @@ const ExtratoCompletoComponent = () => {
       );
     });
 
+    // Função que limpa os filtros
+    const limparFiltros = () => {
+    setMesSelecionado("");
+    setFiltroValorMin("");
+    setFiltroValorMax("");
+    setFiltroTipo("");
+    setFiltroStatus("");
+    setBuscaTexto("");
+    setPeriodo([null, null]);
+  };
+
   return (
     <div className="container extratoCompletoContainer">
       <div className="row align-items-center mb-4">
@@ -94,9 +106,10 @@ const ExtratoCompletoComponent = () => {
         </div>
       </div>
 
-      {/* Filtros avançados */}
-      <div className="row mb-3">
-        <div className="col-md-4">
+      {/* Filtros */}
+      <div className="row mb-3 g-2">
+        
+        <div className="col-md-4 col-sm-12">
           <select className="form-select" value={mesSelecionado} onChange={handleMesChange}>
             <option value="">Todos os meses</option>
             {[...new Set(transacoes.map((t) => t.mes))].map((mes) => (
@@ -106,36 +119,17 @@ const ExtratoCompletoComponent = () => {
             ))}
           </select>
         </div>
-      </div>
 
-      <div className="row mb-3 g-2">
-        <div className="col-md-3">
-          <input type="date" className="form-control" value={filtroDataInicio} onChange={(e) => setFiltroDataInicio(e.target.value)} />
-        </div>
-        <div className="col-md-3">
-          <input type="date" className="form-control" value={filtroDataFim} onChange={(e) => setFiltroDataFim(e.target.value)} />
-        </div>
-        <div className="col-md-2">
-          <input type="number" className="form-control" placeholder="Valor mínimo" value={filtroValorMin} onChange={(e) => setFiltroValorMin(e.target.value)} />
-        </div>
-        <div className="col-md-2">
-          <input type="number" className="form-control" placeholder="Valor máximo" value={filtroValorMax} onChange={(e) => setFiltroValorMax(e.target.value)} />
-        </div>
-        <div className="col-md-2">
-          <input type="text" className="form-control" placeholder="Buscar..." value={buscaTexto} onChange={(e) => setBuscaTexto(e.target.value)} />
-        </div>
-      </div>
-
-      <div className="row mb-4 g-2">
-        <div className="col-md-3">
+        <div className="col-md-4 col-sm-12">
           <select className="form-select" value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
             <option value="">Todos os tipos</option>
             <option value="deposito">Depósito</option>
             <option value="transferencia">Transferência</option>
-            <option value="investimentos">Investimentos</option>
+            <option value="investimento">Investimentos</option>
+            <option value="outros">Outros</option>
           </select>
         </div>
-        <div className="col-md-3">
+        <div className="col-md-4 col-sm-12">
           <select className="form-select" value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
             <option value="">Todos os status</option>
             <option value="ativa">Ativo</option>
@@ -144,9 +138,44 @@ const ExtratoCompletoComponent = () => {
             <option value="excluida">Excluída</option>
           </select>
         </div>
+
       </div>
 
-      {/* Transações */}
+      <div className="row mb-3 g-2">
+        <div className="col-md-6 col-sm-12">
+          <input type="text" className="form-control" placeholder="Buscar..." value={buscaTexto} onChange={(e) => setBuscaTexto(e.target.value)} />
+        </div>
+
+        <div className="col-md-2 col-sm-12">
+          <DatePicker
+            selectsRange
+            startDate={dataInicio}
+            endDate={dataFim}
+            onChange={(update) => setPeriodo(update)}
+            isClearable
+            className="form-control"
+            placeholderText="Período"
+            dateFormat="dd/MM/yyyy"
+          />
+        </div>
+        <div className="col-md-2 col-sm-12">
+          <input type="number" className="form-control" placeholder="Valor mínimo" value={filtroValorMin} onChange={(e) => setFiltroValorMin(e.target.value)} />
+        </div>
+        <div className="col-md-2 col-sm-12">
+          <input type="number" className="form-control" placeholder="Valor máximo" value={filtroValorMax} onChange={(e) => setFiltroValorMax(e.target.value)} />
+        </div>
+
+        <div className="row mb-3 g-2">
+        <div className="col-md-12 col-sm-12 d-flex justify-content-end">
+          <button className="btn btn-outline-danger" onClick={limparFiltros}>
+            Limpar Filtros
+          </button>
+        </div>
+      </div>
+
+      </div>
+
+      {/* Lista de Transações */}
       <div className="row">
         <div className="col-md-12 mb-3">
           <ul className="transacoes-lista">
@@ -158,18 +187,22 @@ const ExtratoCompletoComponent = () => {
               transacoesFiltradas.map(({ transacao }, index) => (
                 <li className="transacao-item" key={index}>
                   <div className="icone-tipo">
-                  {transacao.tipoTransacao === "deposito" && <FontAwesomeIcon icon={faPiggyBank} color="#2ecc71" />}
-                  {transacao.tipoTransacao === "transferencia" && <FontAwesomeIcon icon={faMoneyBillTransfer} color="#ff5031" />}
-                  {transacao.tipoTransacao === "investimento" && <FontAwesomeIcon icon={faMoneyBillTrendUp} color="#2563eb" />}                  
-                </div>
+                    {transacao.tipoTransacao === "deposito" && <FontAwesomeIcon icon={faPiggyBank} color="#2ecc71" />}
+                    {transacao.tipoTransacao === "transferencia" && <FontAwesomeIcon icon={faMoneyBillTransfer} color="#ff5031" />}
+                    {transacao.tipoTransacao === "investimento" && <FontAwesomeIcon icon={faMoneyBillTrendUp} color="#2563eb" />}
+                  </div>
 
                   <div className="info">
                     <strong>
-                      {transacao.tipoTransacao === "deposito" ? "Depósito" : transacao.tipoTransacao === "transferencia" ? "Transferência" : transacao.tipoTransacao === "investimento" ? "Investimento" : "Outro"}
+                      {transacao.tipoTransacao === "deposito"
+                        ? "Depósito"
+                        : transacao.tipoTransacao === "transferencia"
+                        ? "Transferência"
+                        : transacao.tipoTransacao === "investimento"
+                        ? "Investimento"
+                        : "Outro"}
                     </strong>
-                    <span>
-                      {transacao.descricao && transacao.descricao.trim() !== ""  ? transacao.descricao  : "Não possui descrição"}
-                    </span>
+                    <span>{transacao.descricao?.trim() ? transacao.descricao : "Não possui descrição"}</span>
                   </div>
 
                   <div className="data">
@@ -190,7 +223,6 @@ const ExtratoCompletoComponent = () => {
             )}
           </ul>
         </div>
-
       </div>
     </div>
   );

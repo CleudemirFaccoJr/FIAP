@@ -5,8 +5,6 @@ import { getAuth } from "firebase/auth";
 import EditarTransacaoModal from "./modaleditarComponent";
 import ExcluirTransacaoModal from "./modalexcluirComponent";
 import { Extrato } from "@/app/classes/Extrato";
-import GraficoResumo from "./graficosComponent"; 
-
 
 interface TransacaoData {
   idTransacao: string;
@@ -23,6 +21,15 @@ const ExtratoComponent = () => {
   const [modalEditarAberto, setModalEditarAberto] = useState(false);
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
   const [extrato, setExtrato] = useState<Extrato | null>(null);
+
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const transacoesPorPagina = 5;
+
+  // Cálculo de páginas
+  const indexInicio = (paginaAtual - 1) * transacoesPorPagina;
+  const indexFim = indexInicio + transacoesPorPagina;
+  const transacoesPaginadas = transacoes.slice(indexInicio, indexFim);
+  const totalPaginas = Math.ceil(transacoes.length / transacoesPorPagina);
 
   useEffect(() => {
     const auth = getAuth();
@@ -48,10 +55,6 @@ const ExtratoComponent = () => {
     }
     fetchTransacoes();
   }, [extrato]);
-
-  const { entradas, saidas } = extrato ? extrato.calcularEntradaseSaidas(transacoes) : { entradas: 0, saidas: 0 };
-
-
 
   const abrirModalEditar = () => setModalEditarAberto(true);
   const fecharModalEditar = () => setModalEditarAberto(false);
@@ -86,8 +89,8 @@ const ExtratoComponent = () => {
             <div className="extrato-item">
               <div className="row">
               <div className="extrato-header">Últimas Transações</div>
-              {transacoes.length > 0 ? (
-                transacoes.map((transacao) => (
+              {transacoesPaginadas.length > 0 ? (
+                transacoesPaginadas.map((transacao) => (
                   <div key={transacao.idTransacao} className="extrato-transacao row">
                     <div className="col-md-6 col-sm-12">
                       <div className="extrato-mes">{mesVigente}</div>
@@ -110,6 +113,15 @@ const ExtratoComponent = () => {
               ) : (
                 <div className="col-12">
                   <p>Nenhuma transação encontrada.</p>
+                </div>
+              )}
+
+              {/* Controles de Paginação */}
+              {totalPaginas > 1 && (
+                <div className="paginacao mt-3 text-end">
+                  <button className="btn btn-secondary me-2" onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))} disabled={paginaAtual === 1}>Anterior</button>
+                  <span>Página {paginaAtual} de {totalPaginas}</span>
+                  <button className="btn btn-secondary ms-2" onClick={() => setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))} disabled={paginaAtual === totalPaginas}>Próxima</button>
                 </div>
               )}
               </div>

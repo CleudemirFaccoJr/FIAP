@@ -270,6 +270,10 @@ body {
     text-transform: capitalize;
 }
 
+.paginacao, .btn{
+  font-size: 12px;
+}
+
 /* CSS para Nova Transação */
 .nova-transacao-card {
   background-color: #cbcbcb;
