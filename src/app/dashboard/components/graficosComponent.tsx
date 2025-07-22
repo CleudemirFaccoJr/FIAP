@@ -103,27 +103,41 @@ const GraficoResumo = () => {
   };
 
   const getDadosGastosPorCategoria = (dados: any, uid: string) => {
-    const categoriasTemp: { [categoria: string]: number } = {};
+  const categoriasFixas = ["saude", "lazer", "investimento", "transporte", "outros", "pagamentos", "transferências"];
+  const categoriasTemp: { [categoria: string]: number } = {
+    saude: 0,
+    lazer: 0,
+    investimento: 0,
+    transporte: 0,
+    outros: 0,
+    pagamentos: 0,
+    transferências: 0,
+  };
 
-    Object.values(dados).forEach((diasTransacoes: any) => {
-      Object.values(diasTransacoes).forEach((usuarios: any) => {
-        if (usuarios[uid]) {
-          const transacoesUsuario = usuarios[uid];
-          for (const transacaoId in transacoesUsuario) {
-            const transacao = transacoesUsuario[transacaoId];
-            if (transacao.tipoTransacao !== "deposito") {
-              const categoria = transacao.categoria || "Outros";
-              categoriasTemp[categoria] = (categoriasTemp[categoria] || 0) + transacao.valor;
+  Object.values(dados).forEach((diasTransacoes: any) => {
+    Object.values(diasTransacoes).forEach((usuarios: any) => {
+      if (usuarios[uid]) {
+        const transacoesUsuario = usuarios[uid];
+        for (const transacaoId in transacoesUsuario) {
+          const transacao = transacoesUsuario[transacaoId];
+          if (transacao.tipoTransacao !== "deposito") {
+            const categoria = (transacao.categoria || "").toLowerCase();
+
+            if (categoriasTemp.hasOwnProperty(categoria)) {
+              categoriasTemp[categoria] += transacao.valor;
+            } else {
+              categoriasTemp["outros"] += transacao.valor;
             }
           }
         }
-      });
+      }
     });
+  });
 
-    const categorias = Object.keys(categoriasTemp);
-    setCategoriasLabels(categorias);
-    setCategoriasValores(categorias.map((c) => categoriasTemp[c]));
-  };
+  setCategoriasLabels(categoriasFixas.map((cat) => cat.charAt(0).toUpperCase() + cat.slice(1)));
+  setCategoriasValores(categoriasFixas.map((c) => categoriasTemp[c]));
+};
+
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -230,9 +244,9 @@ const GraficoResumo = () => {
                       labels: categoriasLabels,
                       datasets: [
                         {
-                          label: "Gastos",
+                          label: "Valores R$",
                           data: categoriasValores,
-                          backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#9C27B0", "#00BCD4"],
+                          backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#9C27B0", "#00BCD4", "#795548"],
                           hoverOffset: 6,
                         },
                       ],
