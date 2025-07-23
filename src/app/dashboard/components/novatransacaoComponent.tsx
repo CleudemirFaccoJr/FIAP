@@ -4,6 +4,8 @@ import { database } from "../../../lib/firebase";
 import { ref, get } from "firebase/database";
 import { Transacao } from "@/app/classes/Transacao";
 import UploadAnexo from "./upload/UploadAnexo";
+import { format } from "date-fns";
+import Uploady from "@rpldy/uploady";
 
 const NovaTransacaoComponent = () => {
   const [tipo, setTipo] = useState("");
@@ -13,7 +15,8 @@ const NovaTransacaoComponent = () => {
   const [descricao, setDescricao] = useState("");
   const [categoria, setCategoria] = useState("");
   const [anexoUrl, setAnexoUrl] = useState<string | null>(null);
-
+  const [idTransacao, setIdTransacao] = useState<string>("");
+  const [dataTransacao, setDataTransacao] = useState<string>("");
 
   useEffect(() => {
     const auth = getAuth();
@@ -22,54 +25,58 @@ const NovaTransacaoComponent = () => {
     if (user) {
       setIdConta(user.uid);
       obterSaldo(user.uid);
+      const newIdTransacao = String(Date.now());
+      setIdTransacao(newIdTransacao);
+      setDataTransacao(format(new Date(), "dd-MM-yyyy"));
     } else {
       alert("Usuário não está logado.");
     }
   }, []);
 
-    // Sugestão automática de categoria baseada na descrição
-    useEffect(() => {
-      const texto = descricao.toLowerCase();
+  useEffect(() => {
+    const texto = descricao.toLowerCase();
 
-      if (texto === "") return;
+    if (texto === "") {
+      setCategoria("");
+      return;
+    }
 
-      const palavrasSaude = [
-        "remedio", "remédio", "medicamento", "farmacia", "farmácia",
-        "consulta", "dentista", "hospital", "exame", "plano"
-      ];
+    const palavrasSaude = [
+      "remedio", "remédio", "medicamento", "farmacia", "farmácia",
+      "consulta", "dentista", "hospital", "exame", "plano"
+    ];
 
-      const palavrasLazer = [
-        "cinema", "show", "jantar", "teatro", "bar",
-        "viagem", "hotel", "festa", "parque", "passeio"
-      ];
+    const palavrasLazer = [
+      "cinema", "show", "jantar", "teatro", "bar",
+      "viagem", "hotel", "festa", "parque", "passeio"
+    ];
 
-      const palavrasTransporte = [
-        "uber", "gasolina", "ônibus", "metro", "passagem",
-        "pedágio", "combustivel", "taxi", "corrida", "carro"
-      ];
+    const palavrasTransporte = [
+      "uber", "gasolina", "ônibus", "metro", "passagem",
+      "pedágio", "combustivel", "taxi", "corrida", "carro"
+    ];
 
-      const palavrasInvestimento = [
-        "tesouro", "cdb", "ações", "cripto", "fundos",
-        "poupança", "bolsa", "btc", "etf", "investimento"
-      ];
+    const palavrasInvestimento = [
+      "tesouro", "cdb", "ações", "cripto", "fundos",
+      "poupança", "bolsa", "btc", "etf", "investimento"
+    ];
 
-      const contem = (lista: string[]) => lista.some(palavra => texto.includes(palavra));
+    const contem = (lista: string[]) => lista.some(palavra => texto.includes(palavra));
 
-      if (contem(palavrasSaude)) {
-        setCategoria("Saude");
-      } else if (contem(palavrasLazer)) {
-        setCategoria("Lazer");
-      } else if (contem(palavrasTransporte)) {
-        setCategoria("Transporte");
-      } else if (contem(palavrasInvestimento)) {
-        setCategoria("Investimento");
-      } else {
-        setCategoria("Outros");
-      }
-    }, [descricao]);
+    if (contem(palavrasSaude)) {
+      setCategoria("Saude");
+    } else if (contem(palavrasLazer)) {
+      setCategoria("Lazer");
+    } else if (contem(palavrasTransporte)) {
+      setCategoria("Transporte");
+    } else if (contem(palavrasInvestimento)) {
+      setCategoria("Investimento");
+    } else {
+      setCategoria("Outros");
+    }
+  }, [descricao]);
 
 
-  // Função para obter o saldo da conta
   const obterSaldo = async (idconta: string) => {
     const contaRef = ref(database, `contas/${idconta}/saldo`);
     try {
@@ -107,6 +114,11 @@ const NovaTransacaoComponent = () => {
       return;
     }
 
+    if (!idTransacao) {
+      alert("Erro ao gerar ID da transação. Tente novamente.");
+      return;
+    }
+
     const valorNumerico = parseFloat(valor);
 
     if (tipo === "deposito" && valorNumerico <= 0) {
@@ -116,7 +128,7 @@ const NovaTransacaoComponent = () => {
 
     if (valorNumerico > 100000) {
       alert("Transações acima de R$ 100.000,00 devem ser feitas manualmente. Por favor, entre em contato com o suporte.");
-      return;  
+      return;
     }
 
     if (isNaN(valorNumerico)) {
@@ -127,107 +139,137 @@ const NovaTransacaoComponent = () => {
     let novoSaldo: number;
     if (tipo === "deposito") {
       novoSaldo = saldoAtual + valorNumerico;
-    } else if (tipo === "transferencia") {
+    } else if (tipo === "transferencia" || tipo === "pagamento" || tipo === "investimento") {
       novoSaldo = saldoAtual - valorNumerico;
-    } else if (tipo === "pagamento") {
-      novoSaldo = saldoAtual - valorNumerico;
-    }else if (tipo === "investimento") {
-      novoSaldo = saldoAtual - valorNumerico;
-    }else {
+    } else {
       alert("Tipo de transação inválido.");
       return;
     }
 
-    if (novoSaldo < 0 && tipo === "transferencia") {
+    if (novoSaldo < 0 && (tipo === "transferencia" || tipo === "pagamento" || tipo === "investimento")) {
       alert(`Sua conta está negativada, será usado seu cheque especial. Seu novo saldo é: ${novoSaldo.toFixed(2)}`);
     }
 
-    const transacao = new Transacao(tipo, valorNumerico, idconta, saldoAtual, novoSaldo, descricao, categoria, anexoUrl );
+    const transacao = new Transacao(
+      tipo,
+      valorNumerico,
+      idconta,
+      saldoAtual,
+      novoSaldo,
+      descricao,
+      categoria,
+      idTransacao,
+      anexoUrl
+    );
 
     try {
       await transacao.registrar();
       alert("Transação concluída com sucesso!");
       setTipo("");
       setValor("");
+      setDescricao("");
+      setCategoria("");
+      setAnexoUrl(null);
+      setIdTransacao(String(Date.now()));
+      setDataTransacao(format(new Date(), "dd-MM-yyyy"));
+      obterSaldo(idconta);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       alert(`Erro ao salvar a transação: ${errorMessage}. Tente novamente.`);
     }
   };
 
+  const uploadDestinationUrl = idconta && idTransacao && dataTransacao
+    ? `https://faccocreative.com.br/bytebank/uploads/${idconta}/${dataTransacao.split('-')[1]}/${dataTransacao.split('-')[0]}/${dataTransacao.split('-')[2]}/${idTransacao}/`
+    : "";
+
   return (
     <div className="nova-transacao-card">
       <h1 className="nova-transacao-titulo">Nova Transação</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <select
-              id="tipo"
-              name="tipo"
-              className="tipo-transacao-select"
-              value={tipo}
-              onChange={(e) => setTipo(e.target.value)}
-              required
-            >
-              <option value="">Selecione o tipo de transação</option>
-              <option value="deposito">Depósito</option>
-              <option value="transferencia">Transferência</option>
-              <option value="pagamento">Pagamento</option>
-              <option value="investimento">Investimento</option>
-            </select>
-          </div>
+      {idconta && idTransacao && dataTransacao && (
+        <Uploady
+          destination={{ url: uploadDestinationUrl, method: "POST" }}
+          multiple={false}
+          accept="image/*,.pdf,.doc,.docx"
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <select
+                id="tipo"
+                name="tipo"
+                className="tipo-transacao-select"
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value)}
+                required
+              >
+                <option value="">Selecione o tipo de transação</option>
+                <option value="deposito">Depósito</option>
+                <option value="transferencia">Transferência</option>
+                <option value="pagamento">Pagamento</option>
+                <option value="investimento">Investimento</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <input
-              type="number"
-              id="valor"
-              name="valor"
-              className="valor-input"
-              placeholder="R$ 00.00"
-              step="0.01"
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              required
+            <div className="form-group">
+              <input
+                type="number"
+                id="valor"
+                name="valor"
+                className="valor-input"
+                placeholder="R$ 00.00"
+                step="0.01"
+                value={valor}
+                onChange={(e) => setValor(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <select
+                id="categoria"
+                name="categoria"
+                className="tipo-transacao-select"
+                value={categoria}
+                onChange={(e) => setCategoria(e.target.value)}
+                required
+              >
+                <option value="">Selecione a categoria</option>
+                <option value="Saude">Saúde</option>
+                <option value="Lazer">Lazer</option>
+                <option value="Investimento">Investimento</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Outros">Outros</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <textarea
+                id="descricao"
+                name="descricao"
+                className="descricao-textarea"
+                placeholder="Descrição da transação (opcional)"
+                rows={3}
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
+              />
+            </div>
+
+            <UploadAnexo
+              idUsuario={idconta}
+              idTransacao={idTransacao}
+              dataTransacao={dataTransacao}
+              onUploadSuccess={(url) => setAnexoUrl(url)}
+              onRemoveSuccess={() => setAnexoUrl(null)}
+              urlAtual={anexoUrl}
             />
-          </div>
 
-          <div className="form-group">
-            <select
-              id="categoria"
-              name="categoria"
-              className="tipo-transacao-select"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              required
-            >
-              <option value="">Selecione a categoria</option>
-              <option value="Saude">Saúde</option>
-              <option value="Lazer">Lazer</option>
-              <option value="Investimento">Investimento</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Outros">Outros</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <textarea
-              id="descricao"
-              name="descricao"
-              className="descricao-textarea"
-              placeholder="Descrição da transação (opcional)"
-              rows={3}
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-            />
-          </div>
-
-          <UploadAnexo
-            onUploadSuccess={(url) => setAnexoUrl(url)}
-            onRemoveSuccess={() => setAnexoUrl(null)}
-            urlAtual={anexoUrl}
-          />
-
-          <button type="submit" className="concluir-button">Concluir Transação</button>
-        </form>
+            <button type="submit" className="concluir-button">Concluir Transação</button>
+          </form>
+        </Uploady>
+      )}
+      {!idconta || !idTransacao || !dataTransacao && (
+        <div>Carregando dados do usuário e transação...</div>
+      )}
     </div>
   );
 };

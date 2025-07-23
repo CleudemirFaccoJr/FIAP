@@ -1,75 +1,78 @@
-// src/components/Upload/UploadAnexo.tsx
-import React, { useState } from "react";
-import { enviarAnexo, removerAnexo } from "./uploadUtils";
+import React, { useCallback, useState } from "react";
+import UploadButton from "@rpldy/upload-button";
+import UploadPreview from "@rpldy/upload-preview";
+import { useItemProgressListener, useItemFinishListener, useUploader } from "@rpldy/uploady";
+import type { PreviewComponentProps } from "@rpldy/upload-preview";
 
-type UploadAnexoProps = {
-  onUploadSuccess: (url: string) => void;
-  onRemoveSuccess: () => void;
+interface UploadAnexoProps {
   idUsuario: string;
-  urlAtual?: string;
+  idTransacao: string;
+  dataTransacao: string; // Format: DD-MM-YYYY
+  onUploadSuccess?: (url: string) => void;
+  onRemoveSuccess: () => void;
+  urlAtual: string | null;
+}
+
+const PreviewComProgresso: React.FC<PreviewComponentProps> = ({ id, url }) => {
+  const [progresso, setProgresso] = useState(0);
+
+  useItemProgressListener((item) => {
+    if (item.id === id) {
+      setProgresso(item.completed);
+    }
+  });
+
+  return (
+    <div className="mt-2">
+      {url && url.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+        <img src={url} alt="Preview" style={{ maxWidth: "100px", opacity: progresso / 100 }} />
+      ) : (
+        <p>Arquivo enviado: {url ? url.split("/").pop() : ""}</p>
+      )}
+      <div className="progress mt-1">
+        <div
+          className="progress-bar"
+          role="progressbar"
+          style={{ width: `${progresso}%` }}
+          aria-valuenow={progresso}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          {progresso}%
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const UploadAnexo: React.FC<UploadAnexoProps> = ({
-  onUploadSuccess,
-  onRemoveSuccess,
   idUsuario,
-  urlAtual = null,
+  idTransacao,
+  dataTransacao,
+  onUploadSuccess,
+  onRemoveSuccess 
 }) => {
-  const [uploadStatus, setUploadStatus] = useState<"enviado" | "erro" | null>(null);
-  const [anexoUrl, setAnexoUrl] = useState<string | null>(urlAtual || null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const url = await enviarAnexo(file, idUsuario);
-      setAnexoUrl(url);
-      setUploadStatus("enviado");
-      onUploadSuccess(url);
-    } catch (error) {
-      console.error("Erro no upload:", error);
-      setUploadStatus("erro");
+  useItemFinishListener((item) => {
+    if (item.uploadResponse?.data?.url && onUploadSuccess) {
+      onUploadSuccess(item.uploadResponse.data.url);
+    } else if (item.uploadResponse?.response?.url && onUploadSuccess) {
+      onUploadSuccess(item.uploadResponse.response.url);
+    } else {
+      console.warn("URL do anexo não encontrada na resposta do upload.", item.uploadResponse);
     }
-  };
+  });
 
-  const handleRemover = async () => {
-    if (!anexoUrl) return;
-
-    try {
-      await removerAnexo(anexoUrl);
-      setAnexoUrl(null);
-      setUploadStatus(null);
-      onRemoveSuccess();
-    } catch (error) {
-      alert("Erro ao remover o anexo.");
-    }
-  };
+  const getPreviewProps = useCallback((item: { id: string }) => ({ id: item.id }), []);
 
   return (
-    <div className="form-group">
-      <label htmlFor="anexo">Anexo</label>
-      <input
-        type="file"
-        id="anexo"
-        className="form-control"
-        accept="image/*,application/pdf"
-        onChange={handleFileChange}
+    <> {/* Use React Fragment as Uploady is no longer here */}
+      <UploadButton className="btn btn-primary">Anexar Arquivo</UploadButton>
+      <UploadPreview
+        PreviewComponent={PreviewComProgresso}
+        previewComponentProps={getPreviewProps}
       />
-
-      {uploadStatus === "enviado" && (
-        <p className="mensagem-sucesso">Arquivo enviado com sucesso!</p>
-      )}
-      {uploadStatus === "erro" && (
-        <p className="mensagem-erro">Erro ao enviar o arquivo.</p>
-      )}
-
-      {anexoUrl && (
-        <button type="button" onClick={handleRemover} className="remover-anexo-button">
-          Remover Anexo
-        </button>
-      )}
-    </div>
+    </>
   );
 };
 

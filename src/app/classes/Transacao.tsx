@@ -14,6 +14,7 @@ export class Transacao {
   descricao: string;
   categoria: string;
   idTransacao?: string;
+  anexoUrl?: string | null; // Added anexoUrl property
   historico?: Array<{
     dataModificacao: string;
     campoModificado: string;
@@ -30,6 +31,7 @@ export class Transacao {
     descricao: string,
     categoria: string,
     idTransacao?: string,
+    anexoUrl?: string | null, // Added anexoUrl to constructor
     historico?: Array<{
       dataModificacao: string;
       campoModificado: string;
@@ -43,6 +45,7 @@ export class Transacao {
     this.saldoAnterior = saldoAnterior;
     this.saldo = saldo;
     this.idTransacao = idTransacao;
+    this.anexoUrl = anexoUrl; // Assign anexoUrl
     this.historico = historico;
     this.descricao = descricao;
     this.categoria = categoria;
@@ -60,13 +63,13 @@ export class Transacao {
   async registrar(): Promise<void> {
     const dataAtual = new Date();
     const mesVigente = `${String(dataAtual.getMonth() + 1).padStart(2, "0")}-${dataAtual.getFullYear()}`;
-    const timestamp = dataAtual.getTime();
-    const idTransacao = `${timestamp}`;
-    const transacoesRef = ref(database, `transacoes/${mesVigente}/${this.data}/${this.idconta}/${timestamp}`);
+    // Use the idTransacao from the constructor if available, otherwise generate a new one
+    const idTransacaoToUse = this.idTransacao || `${dataAtual.getTime()}`;
+    const transacoesRef = ref(database, `transacoes/${mesVigente}/${this.data}/${this.idconta}/${idTransacaoToUse}`);
 
     try {
       await set(transacoesRef, {
-        idTransacao,
+        idTransacao: idTransacaoToUse, // Ensure idTransacao is saved
         tipoTransacao: this.tipo,
         valor: this.valor,
         saldoAnterior: this.saldoAnterior,
@@ -76,6 +79,7 @@ export class Transacao {
         status: this.status,
         descricao: this.descricao,
         categoria: this.categoria,
+        anexoUrl: this.anexoUrl || null, // Save anexoUrl
       });
 
       const contaRef = ref(database, `contas/${this.idconta}/saldo`);
@@ -182,6 +186,7 @@ export class Transacao {
           historico: novoHistorico,
           descricao: this.descricao,
           categoria: this.categoria,
+          anexoUrl: this.anexoUrl || null, // Ensure anexoUrl is updated
         });
 
         await update(saldoRef, { saldo: saldoAtual });
