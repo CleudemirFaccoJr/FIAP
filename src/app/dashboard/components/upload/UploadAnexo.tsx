@@ -1,48 +1,43 @@
-import React, { useCallback, useState } from "react";
-import UploadButton from "@rpldy/upload-button";
-import UploadPreview from "@rpldy/upload-preview";
-import { useItemProgressListener, useItemFinishListener, useUploader } from "@rpldy/uploady";
-import type { PreviewComponentProps } from "@rpldy/upload-preview";
+import React, { useState, ChangeEvent } from "react";
 
 interface UploadAnexoProps {
   idUsuario: string;
   idTransacao: string;
   dataTransacao: string; // Format: DD-MM-YYYY
-  onUploadSuccess?: (url: string) => void;
+  onUploadSuccess?: (base64: string) => void;
   onRemoveSuccess: () => void;
   urlAtual: string | null;
 }
 
-const PreviewComProgresso: React.FC<PreviewComponentProps> = ({ id, url }) => {
-  const [progresso, setProgresso] = useState(0);
+const tiposPermitidos = ["image/jpeg", "image/png", "image/bmp", "application/pdf"];
 
-  useItemProgressListener((item) => {
-    if (item.id === id) {
-      setProgresso(item.completed);
-    }
+const converterArquivoParaBase64 = (file: File, onProgress: (percent: number) => void): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    const tamanhoTotal = file.size;
+
+    reader.onloadstart = () => onProgress(0);
+
+    reader.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / tamanhoTotal) * 100);
+        onProgress(percent);
+      }
+    };
+
+    reader.onloadend = () => {
+      onProgress(100);
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject("Erro ao converter o arquivo.");
+      }
+    };
+
+    reader.onerror = () => reject("Erro ao ler o arquivo.");
+
+    reader.readAsDataURL(file);
   });
-
-  return (
-    <div className="mt-2">
-      {url && url.match(/\.(jpeg|jpg|png|gif)$/i) ? (
-        <img src={url} alt="Preview" style={{ maxWidth: "100px", opacity: progresso / 100 }} />
-      ) : (
-        <p>Arquivo enviado: {url ? url.split("/").pop() : ""}</p>
-      )}
-      <div className="progress mt-1">
-        <div
-          className="progress-bar"
-          role="progressbar"
-          style={{ width: `${progresso}%` }}
-          aria-valuenow={progresso}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          {progresso}%
-        </div>
-      </div>
-    </div>
-  );
 };
 
 const UploadAnexo: React.FC<UploadAnexoProps> = ({
@@ -50,29 +45,69 @@ const UploadAnexo: React.FC<UploadAnexoProps> = ({
   idTransacao,
   dataTransacao,
   onUploadSuccess,
-  onRemoveSuccess 
+  onRemoveSuccess,
+  urlAtual,
 }) => {
+  const [progresso, setProgresso] = useState<number>(0);
+  const [nomeArquivo, setNomeArquivo] = useState<string | null>(null);
+  const [mensagem, setMensagem] = useState<string>("");
 
-  useItemFinishListener((item) => {
-    if (item.uploadResponse?.data?.url && onUploadSuccess) {
-      onUploadSuccess(item.uploadResponse.data.url);
-    } else if (item.uploadResponse?.response?.url && onUploadSuccess) {
-      onUploadSuccess(item.uploadResponse.response.url);
-    } else {
-      console.warn("URL do anexo não encontrada na resposta do upload.", item.uploadResponse);
+  const handleArquivoSelecionado = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setMensagem("");
+
+    if (file) {
+      if (!tiposPermitidos.includes(file.type)) {
+        setMensagem("Arquivo inválido. Permitidos: JPG, PNG, BMP e PDF.");
+        return;
+      }
+
+      setNomeArquivo(file.name);
+      setProgresso(0);
+
+      try {
+        const base64 = await converterArquivoParaBase64(file, setProgresso);
+        setMensagem("Arquivo anexado com sucesso!");
+        if (onUploadSuccess) onUploadSuccess(base64);
+      } catch (error) {
+        console.error(error);
+        setMensagem("Falha no processo de anexo do arquivo.");
+      }
     }
-  });
-
-  const getPreviewProps = useCallback((item: { id: string }) => ({ id: item.id }), []);
+  };
 
   return (
-    <> {/* Use React Fragment as Uploady is no longer here */}
-      <UploadButton className="btn btn-primary">Anexar Arquivo</UploadButton>
-      <UploadPreview
-        PreviewComponent={PreviewComProgresso}
-        previewComponentProps={getPreviewProps}
+    <div className="mt-3">
+      <label className="form-label">
+        Selecione um arquivo (JPG, PNG, BMP ou PDF)
+      </label>
+      <input
+        type="file"
+        className="form-control"
+        accept=".jpg,.jpeg,.png,.bmp,.pdf"
+        onChange={handleArquivoSelecionado}
       />
-    </>
+
+      {nomeArquivo && (
+        <div className="mt-3">
+          <p>Arquivo: {nomeArquivo}</p>
+          <div className="progress">
+            <div
+              className="progress-bar"
+              role="progressbar"
+              style={{ width: `${progresso}%` }}
+              aria-valuenow={progresso}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              {progresso}%
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mensagem && <p className="mt-2">{mensagem}</p>}
+    </div>
   );
 };
 

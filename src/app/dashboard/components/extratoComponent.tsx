@@ -5,6 +5,7 @@ import { getAuth } from "firebase/auth";
 import EditarTransacaoModal from "./modaleditarComponent";
 import ExcluirTransacaoModal from "./modalexcluirComponent";
 import { Extrato } from "@/app/classes/Extrato";
+import { visualizarAnexo } from "@/utils/visualizarAnexo";
 
 interface TransacaoData {
   idTransacao: string;
@@ -13,6 +14,7 @@ interface TransacaoData {
   data: string;
   hora: string;
   status: string;
+  anexoUrl?: string;
 }
 
 const ExtratoComponent = () => {
@@ -25,10 +27,21 @@ const ExtratoComponent = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const transacoesPorPagina = 5;
 
+  const [ordenacao, setOrdenacao] = useState<"mais_recente" | "mais_antigo">("mais_recente");
+
+  // Cálculo de páginas com ordenação aplicada
+  const transacoesOrdenadas = [...transacoes].sort((a, b) => {
+    const dataA = new Date(`${a.data.split("/").reverse().join("-")}T${a.hora}`);
+    const dataB = new Date(`${b.data.split("/").reverse().join("-")}T${b.hora}`);
+    return ordenacao === "mais_recente"
+      ? dataB.getTime() - dataA.getTime()
+      : dataA.getTime() - dataB.getTime();
+  });
+
   // Cálculo de páginas
   const indexInicio = (paginaAtual - 1) * transacoesPorPagina;
   const indexFim = indexInicio + transacoesPorPagina;
-  const transacoesPaginadas = transacoes.slice(indexInicio, indexFim);
+ const transacoesPaginadas = transacoesOrdenadas.slice(indexInicio, indexFim);
   const totalPaginas = Math.ceil(transacoes.length / transacoesPorPagina);
 
   useEffect(() => {
@@ -66,11 +79,20 @@ const ExtratoComponent = () => {
     <div className="extrato-card">
       <div className="container">
         <div className="row">
-          <div className="col-md-10 col-sm-12">
+          <div className="col-md-6 col-sm-12">
             <h5>Extrato</h5>
           </div>
-          <div className="col-md-2 col-sm-12 text-end">
+          <div className="col-md-6 col-sm-12 text-end">
             <ul>
+              <li>
+                <select className="form-select" value={ordenacao} onChange={(e) => {
+                setOrdenacao(e.target.value as "mais_recente" | "mais_antigo");
+                setPaginaAtual(1); // Volta para a primeira página ao mudar ordenação
+              }}>
+                  <option value="mais_recente">Mais recente primeiro</option>
+                  <option value="mais_antigo">Mais antigo primeiro</option>
+                </select>
+              </li>
               <li>
                 <span className="extrato-editar-icone" onClick={abrirModalEditar}>
                   <FontAwesomeIcon icon={faPenToSquare} />
@@ -96,7 +118,7 @@ const ExtratoComponent = () => {
                       <div className="extrato-mes">{mesVigente}</div>
                       <div className="extrato-data">{`${transacao.data} - ${transacao.hora}`}</div>
                     </div>
-                    <div className="col-md-6 col-sm-12">
+                    <div className="col-md-4 col-sm-12">
                       <div
                         className={`extrato-valor ${
                           transacao.tipoTransacao === "deposito" ? "positivo" : "negativo"
@@ -108,6 +130,11 @@ const ExtratoComponent = () => {
                         {transacao.tipoTransacao}
                       </div>
                     </div>
+                    <div className="col-md-2 col-sm-12">
+                    {transacao.anexoUrl && (
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => visualizarAnexo(transacao.anexoUrl || "")}>Ver Anexo</button>
+                    )}
+                  </div>
                   </div>
                 ))
               ) : (

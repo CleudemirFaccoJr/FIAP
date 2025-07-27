@@ -5,7 +5,6 @@ import { ref, get } from "firebase/database";
 import { Transacao } from "@/app/classes/Transacao";
 import UploadAnexo from "./upload/UploadAnexo";
 import { format } from "date-fns";
-import Uploady from "@rpldy/uploady";
 
 const NovaTransacaoComponent = () => {
   const [tipo, setTipo] = useState("");
@@ -75,7 +74,6 @@ const NovaTransacaoComponent = () => {
       setCategoria("Outros");
     }
   }, [descricao]);
-
 
   const obterSaldo = async (idconta: string) => {
     const contaRef = ref(database, `contas/${idconta}/saldo`);
@@ -159,7 +157,7 @@ const NovaTransacaoComponent = () => {
       descricao,
       categoria,
       idTransacao,
-      anexoUrl
+      anexoUrl 
     );
 
     try {
@@ -179,95 +177,84 @@ const NovaTransacaoComponent = () => {
     }
   };
 
-  const uploadDestinationUrl = idconta && idTransacao && dataTransacao
-    ? `https://faccocreative.com.br/bytebank/uploads/${idconta}/${dataTransacao.split('-')[1]}/${dataTransacao.split('-')[0]}/${dataTransacao.split('-')[2]}/${idTransacao}/`
-    : "";
-
   return (
     <div className="nova-transacao-card">
       <h1 className="nova-transacao-titulo">Nova Transação</h1>
-      {idconta && idTransacao && dataTransacao && (
-        <Uploady
-          destination={{ url: uploadDestinationUrl, method: "POST" }}
-          multiple={false}
-          accept="image/*,.pdf,.doc,.docx"
-        >
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <select
-                id="tipo"
-                name="tipo"
-                className="tipo-transacao-select"
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                required
-              >
-                <option value="">Selecione o tipo de transação</option>
-                <option value="deposito">Depósito</option>
-                <option value="transferencia">Transferência</option>
-                <option value="pagamento">Pagamento</option>
-                <option value="investimento">Investimento</option>
-              </select>
-            </div>
+      {idconta && idTransacao && dataTransacao ? (
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <select
+              id="tipo"
+              name="tipo"
+              className="tipo-transacao-select"
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              required
+            >
+              <option value="">Selecione o tipo de transação</option>
+              <option value="deposito">Depósito</option>
+              <option value="transferencia">Transferência</option>
+              <option value="pagamento">Pagamento</option>
+              <option value="investimento">Investimento</option>
+            </select>
+          </div>
 
-            <div className="form-group">
-              <input
-                type="number"
-                id="valor"
-                name="valor"
-                className="valor-input"
-                placeholder="R$ 00.00"
-                step="0.01"
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <select
-                id="categoria"
-                name="categoria"
-                className="tipo-transacao-select"
-                value={categoria}
-                onChange={(e) => setCategoria(e.target.value)}
-                required
-              >
-                <option value="">Selecione a categoria</option>
-                <option value="Saude">Saúde</option>
-                <option value="Lazer">Lazer</option>
-                <option value="Investimento">Investimento</option>
-                <option value="Transporte">Transporte</option>
-                <option value="Outros">Outros</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <textarea
-                id="descricao"
-                name="descricao"
-                className="descricao-textarea"
-                placeholder="Descrição da transação (opcional)"
-                rows={3}
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-              />
-            </div>
-
-            <UploadAnexo
-              idUsuario={idconta}
-              idTransacao={idTransacao}
-              dataTransacao={dataTransacao}
-              onUploadSuccess={(url) => setAnexoUrl(url)}
-              onRemoveSuccess={() => setAnexoUrl(null)}
-              urlAtual={anexoUrl}
+          <div className="form-group">
+            <input
+              type="number"
+              id="valor"
+              name="valor"
+              className="valor-input"
+              placeholder="R$ 00.00"
+              step="0.01"
+              value={valor}
+              onChange={(e) => setValor(e.target.value)}
+              required
             />
+          </div>
 
-            <button type="submit" className="concluir-button">Concluir Transação</button>
-          </form>
-        </Uploady>
-      )}
-      {!idconta || !idTransacao || !dataTransacao && (
+          <div className="form-group">
+            <select
+              id="categoria"
+              name="categoria"
+              className="tipo-transacao-select"
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+              required
+            >
+              <option value="">Selecione a categoria</option>
+              <option value="Saude">Saúde</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Investimento">Investimento</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <textarea
+              id="descricao"
+              name="descricao"
+              className="descricao-textarea"
+              placeholder="Descrição da transação (opcional)"
+              rows={3}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+          </div>
+
+          <UploadAnexo
+            idUsuario={idconta}
+            idTransacao={idTransacao}
+            dataTransacao={dataTransacao}
+            onUploadSuccess={(base64) => setAnexoUrl(base64)}
+            onRemoveSuccess={() => setAnexoUrl(null)}
+            urlAtual={anexoUrl}
+          />
+
+          <button type="submit" className="concluir-button">Concluir Transação</button>
+        </form>
+      ) : (
         <div>Carregando dados do usuário e transação...</div>
       )}
     </div>

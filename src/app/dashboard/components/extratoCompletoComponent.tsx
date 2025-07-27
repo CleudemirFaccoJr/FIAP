@@ -7,6 +7,7 @@ import { faPiggyBank, faMoneyBillTrendUp, faMoneyBillTransfer } from '@fortaweso
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { visualizarAnexo } from "@/utils/visualizarAnexo";
 
 interface TransacaoData {
   idTransacao: string;
@@ -16,6 +17,7 @@ interface TransacaoData {
   hora: string;
   status: string;
   descricao?: string;
+  anexoUrl?: string;
 }
 
 const ExtratoCompletoComponent = () => {
@@ -185,27 +187,43 @@ const ExtratoCompletoComponent = () => {
               </li>
             ) : (
               transacoesFiltradas.map(({ transacao }, index) => (
-                <li className="transacao-item" key={index}>
-                  <div className="icone-tipo">
-                    {transacao.tipoTransacao === "deposito" && <FontAwesomeIcon icon={faPiggyBank} color="#2ecc71" />}
-                    {transacao.tipoTransacao === "transferencia" && <FontAwesomeIcon icon={faMoneyBillTransfer} color="#ff5031" />}
-                    {transacao.tipoTransacao === "investimento" && <FontAwesomeIcon icon={faMoneyBillTrendUp} color="#2563eb" />}
+                <li className="flex items-start justify-between p-4 transacao-item" key={index}>
+                  {/* Lado esquerdo - Ícone e informações */}
+                  <div className="flex items-start space-x-3">
+                    {/* Ícone */}
+                    <div className="icone-tipo">
+                      {transacao.tipoTransacao === "deposito" && <FontAwesomeIcon icon={faPiggyBank} color="#2ecc71" />}
+                      {transacao.tipoTransacao === "transferencia" && <FontAwesomeIcon icon={faMoneyBillTransfer} color="#ff5031" />}
+                      {transacao.tipoTransacao === "investimento" && <FontAwesomeIcon icon={faMoneyBillTrendUp} color="#2563eb" />}
+                    </div>
+
+                    {/* Informações da transação */}
+                    <div className="flex flex-col space-y-2">
+                        <div className="info">
+                        <strong>
+                          {transacao.tipoTransacao === "deposito"
+                            ? "Depósito"
+                            : transacao.tipoTransacao === "transferencia"
+                            ? "Transferência"
+                            : transacao.tipoTransacao === "investimento"
+                            ? "Investimento"
+                            : "Outro"}
+                        </strong>
+                        <span>{transacao.descricao?.trim() ? transacao.descricao : "Não possui descrição"}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Botão embaixo do texto */}
+                    {transacao.anexoUrl && (
+                      <div className="anexo">
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => visualizarAnexo(transacao.anexoUrl || "")}>Ver Anexo</button>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="info">
-                    <strong>
-                      {transacao.tipoTransacao === "deposito"
-                        ? "Depósito"
-                        : transacao.tipoTransacao === "transferencia"
-                        ? "Transferência"
-                        : transacao.tipoTransacao === "investimento"
-                        ? "Investimento"
-                        : "Outro"}
-                    </strong>
-                    <span>{transacao.descricao?.trim() ? transacao.descricao : "Não possui descrição"}</span>
-                  </div>
-
-                  <div className="data">
+                  {/* Lado direito - Data, hora, valor e status */}
+                  <div className="flex flex-col items-end space-y-1 text-right">
+                    <div className="data">
                     {transacao.data}
                     <br />
                     <small>{transacao.hora}</small>
@@ -217,6 +235,7 @@ const ExtratoCompletoComponent = () => {
 
                   <div className={`status ${transacao.status.toLowerCase()}`}>
                     {transacao.status.toUpperCase()}
+                  </div>
                   </div>
                 </li>
               ))

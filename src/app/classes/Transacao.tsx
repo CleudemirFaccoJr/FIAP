@@ -63,13 +63,12 @@ export class Transacao {
   async registrar(): Promise<void> {
     const dataAtual = new Date();
     const mesVigente = `${String(dataAtual.getMonth() + 1).padStart(2, "0")}-${dataAtual.getFullYear()}`;
-    // Use the idTransacao from the constructor if available, otherwise generate a new one
     const idTransacaoToUse = this.idTransacao || `${dataAtual.getTime()}`;
     const transacoesRef = ref(database, `transacoes/${mesVigente}/${this.data}/${this.idconta}/${idTransacaoToUse}`);
 
     try {
       await set(transacoesRef, {
-        idTransacao: idTransacaoToUse, // Ensure idTransacao is saved
+        idTransacao: idTransacaoToUse,
         tipoTransacao: this.tipo,
         valor: this.valor,
         saldoAnterior: this.saldoAnterior,
@@ -79,7 +78,7 @@ export class Transacao {
         status: this.status,
         descricao: this.descricao,
         categoria: this.categoria,
-        anexoUrl: this.anexoUrl || null, // Save anexoUrl
+        anexoUrl: this.anexoUrl || null,
       });
 
       const contaRef = ref(database, `contas/${this.idconta}/saldo`);
@@ -182,11 +181,11 @@ export class Transacao {
           saldo: saldoAtual,
           data: this.data,
           hora: this.hora,
-          status: "Editada",
+          status: "Ativa",
           historico: novoHistorico,
           descricao: this.descricao,
           categoria: this.categoria,
-          anexoUrl: this.anexoUrl || null, // Ensure anexoUrl is updated
+          anexoUrl: this.anexoUrl || null,
         });
 
         await update(saldoRef, { saldo: saldoAtual });
