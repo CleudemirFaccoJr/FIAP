@@ -101,28 +101,43 @@ const UploadAnexo: React.FC<UploadAnexoProps> = ({
       />
 
       {urlAtual && (
-        <div className="mt-3">
-          <p>
-            <strong>Anexo atual:</strong>{" "}
-            <a href={urlAtual} target="_blank" rel="noopener noreferrer">
-              Visualizar
-            </a>{" "}
-            |{" "}
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-danger ms-2"
-              onClick={onRemoveSuccess}
-            >
-              Remover
-            </button>
-          </p>
-        </div>
-      )}
+  <div className="mt-3">
+    <p>
+      <strong>Anexo atual:</strong>{" "}
+      <button
+        type="button"
+        className="btn btn-sm btn-outline-primary"
+        onClick={() => {
+          if (urlAtual.startsWith("data:")) {
+            // É base64
+            const newWindow = window.open();
+            if (newWindow) {
+              newWindow.document.write(`<iframe src="${urlAtual}" frameborder="0" style="width:100%;height:100%"></iframe>`);
+              newWindow.document.title = "Visualizar Anexo";
+            }
+          } else {
+            // É uma URL pública
+            window.open(urlAtual, "_blank");
+          }
+        }}
+      >
+        Visualizar
+      </button>{" "}
+      |{" "}
+      <button
+        type="button"
+        className="btn btn-sm btn-outline-danger ms-2"
+        onClick={onRemoveSuccess}
+      >
+        Remover
+      </button>
+    </p>
+  </div>
+)}
 
       {nomeArquivoOriginal && (
         <div className="mt-2">
           <p><strong>Nome original:</strong> {nomeArquivoOriginal}</p>
-          <p><strong>Nome no Firebase:</strong> {nomeFirebase}</p>
           <div className="progress">
             <div
               className="progress-bar"

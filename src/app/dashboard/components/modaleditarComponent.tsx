@@ -1,3 +1,4 @@
+
 import "../../../styles/dashboard.css";
 import "../../../styles/style.css";
 import React, { useEffect, useState } from "react";
@@ -109,10 +110,11 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose, isOpen 
       );
 
       await transacaoAtualizada.atualizarTransacao(mesSelecionado);
-      console.log("Transação atualizada com sucesso!");
+      alert("Suas alterações foram salvas com sucesso!");
       onClose();
     } catch (err) {
       console.error("Erro ao atualizar transação:", err);
+      alert("Ocorreu um erro ao salvar as alterações.");
     }
   };
 
@@ -159,22 +161,26 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose, isOpen 
         </div>
 
         {transacaoSelecionada && (
-          <FormularioTransacao
-            modo="edicao"
-            idUsuario={userId!}
-            idTransacao={transacaoSelecionada.idTransacao}
-            dataTransacao={transacaoSelecionada.data}
-            valorInicial={String(transacaoSelecionada.valor)}
-            tipoInicial={transacaoSelecionada.tipoTransacao}
-            descricaoInicial={transacaoSelecionada.descricao || ""}
-            categoriaInicial={transacaoSelecionada.categoria || ""}
-            anexoUrlInicial={transacaoSelecionada.anexoUrl || null}
-            onSubmit={handleAtualizar}
-          />
+          <>
+            <FormularioTransacao
+              modo="edicao"
+              idUsuario={userId!}
+              idTransacao={transacaoSelecionada.idTransacao}
+              dataTransacao={transacaoSelecionada.data}
+              valorInicial={String(transacaoSelecionada.valor)}
+              tipoInicial={transacaoSelecionada.tipoTransacao}
+              descricaoInicial={transacaoSelecionada.descricao || ""}
+              categoriaInicial={transacaoSelecionada.categoria || ""}
+              anexoUrlInicial={transacaoSelecionada.anexoUrl || null}
+              onSubmit={handleAtualizar}
+            />
+          </>
         )}
 
         <div className="modal-footer">
-          <button className="botaoCancelar" onClick={onClose}>Cancelar</button>
+          <button className="botaoCancelar" onClick={onClose}>
+            Cancelar
+          </button>
         </div>
       </div>
     </div>
