@@ -64,8 +64,10 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose, isOpen 
         if (snapshot.exists()) {
           const dados = snapshot.val();
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           Object.values(dados).forEach((dia: any) => {
             if (dia[userId]) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               Object.values(dia[userId]).forEach((t: any) => {
                 if (t.status === "Ativa" || t.status === "Editada") {
                   transacoes.push(t);
