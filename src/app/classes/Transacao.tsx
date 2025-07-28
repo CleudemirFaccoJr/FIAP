@@ -31,7 +31,8 @@ export class Transacao {
     descricao: string,
     categoria: string,
     idTransacao?: string,
-    anexoUrl?: string | null, // Added anexoUrl to constructor
+    anexoUrl?: string | null,
+    modo: "nova" | "edicao" = "nova",
     historico?: Array<{
       dataModificacao: string;
       campoModificado: string;
@@ -45,7 +46,7 @@ export class Transacao {
     this.saldoAnterior = saldoAnterior;
     this.saldo = saldo;
     this.idTransacao = idTransacao;
-    this.anexoUrl = anexoUrl; // Assign anexoUrl
+    this.anexoUrl = anexoUrl;
     this.historico = historico;
     this.descricao = descricao;
     this.categoria = categoria;
@@ -57,7 +58,7 @@ export class Transacao {
     this.hora = `${String(dataAtual.getHours()).padStart(2, "0")}:${String(
       dataAtual.getMinutes()
     ).padStart(2, "0")}:${String(dataAtual.getSeconds()).padStart(2, "0")}`;
-    this.status = idTransacao ? "Editada" : "Ativa";
+    this.status = modo === "edicao" ? "Editada" : "Ativa";
   }
 
   async registrar(): Promise<void> {

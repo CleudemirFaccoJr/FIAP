@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import "../../../styles/dashboard.css";
 import "../../../styles/style.css";
 import { Extrato } from "@/app/classes/Extrato";
-import { faPiggyBank, faMoneyBillTrendUp, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons';
+import { faPiggyBank, faMoneyBillTrendUp, faMoneyBillTransfer, faCoins, faHeartPulse, faUmbrellaBeach, faCarSide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -34,6 +34,17 @@ const ExtratoCompletoComponent = () => {
   const [periodo, setPeriodo] = useState<[Date | null, Date | null]>([null, null]);
 
   const [dataInicio, dataFim] = periodo;
+
+  //Icones Categorias Transações
+  const iconesCategorias: { [key: string]: JSX.Element } = {
+  deposito: <FontAwesomeIcon icon={faPiggyBank} color="#2ecc71" />,
+  transferencia: <FontAwesomeIcon icon={faMoneyBillTransfer} color="#ff5031" />,
+  investimento: <FontAwesomeIcon icon={faMoneyBillTrendUp} color="#2563eb" />,
+  saúde: <FontAwesomeIcon icon={faHeartPulse} color="#e74c3c" />,
+  lazer: <FontAwesomeIcon icon={faUmbrellaBeach} color="#f39c12" />,
+  transporte: <FontAwesomeIcon icon={faCarSide} color="#3498db" />,
+  outros: <FontAwesomeIcon icon={faCoins} color="#8e44ad" />,
+};
 
   useEffect(() => {
     const auth = getAuth();
@@ -128,7 +139,7 @@ const ExtratoCompletoComponent = () => {
             <option value="deposito">Depósito</option>
             <option value="transferencia">Transferência</option>
             <option value="investimento">Investimentos</option>
-            <option value="outros">Outros</option>
+            <option value="outro">Outros</option>
           </select>
         </div>
         <div className="col-md-4 col-sm-12">
@@ -192,9 +203,9 @@ const ExtratoCompletoComponent = () => {
                   <div className="flex items-start space-x-3">
                     {/* Ícone */}
                     <div className="icone-tipo">
-                      {transacao.tipoTransacao === "deposito" && <FontAwesomeIcon icon={faPiggyBank} color="#2ecc71" />}
-                      {transacao.tipoTransacao === "transferencia" && <FontAwesomeIcon icon={faMoneyBillTransfer} color="#ff5031" />}
-                      {transacao.tipoTransacao === "investimento" && <FontAwesomeIcon icon={faMoneyBillTrendUp} color="#2563eb" />}
+                      {iconesCategorias[transacao.tipoTransacao.toLowerCase()] || (
+                        <FontAwesomeIcon icon={faCoins} color="#7f8c8d" />
+                      )}
                     </div>
 
                     {/* Informações da transação */}

@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 
 interface UploadAnexoProps {
   idUsuario: string;
@@ -11,7 +11,10 @@ interface UploadAnexoProps {
 
 const tiposPermitidos = ["image/jpeg", "image/png", "image/bmp", "application/pdf"];
 
-const converterArquivoParaBase64 = (file: File, onProgress: (percent: number) => void): Promise<string> => {
+const converterArquivoParaBase64 = (
+  file: File,
+  onProgress: (percent: number) => void
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     const tamanhoTotal = file.size;
@@ -49,8 +52,17 @@ const UploadAnexo: React.FC<UploadAnexoProps> = ({
   urlAtual,
 }) => {
   const [progresso, setProgresso] = useState<number>(0);
-  const [nomeArquivo, setNomeArquivo] = useState<string | null>(null);
+  const [nomeArquivoOriginal, setNomeArquivoOriginal] = useState<string | null>(null);
   const [mensagem, setMensagem] = useState<string>("");
+  const [nomeFirebase, setNomeFirebase] = useState<string>("");
+
+  useEffect(() => {
+    if (nomeArquivoOriginal) {
+      const extensao = nomeArquivoOriginal.split(".").pop();
+      const nomeGerado = `anexo_${idUsuario}_${idTransacao}_${dataTransacao.replaceAll("-", "")}.${extensao}`;
+      setNomeFirebase(nomeGerado);
+    }
+  }, [nomeArquivoOriginal, idUsuario, idTransacao, dataTransacao]);
 
   const handleArquivoSelecionado = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -62,7 +74,7 @@ const UploadAnexo: React.FC<UploadAnexoProps> = ({
         return;
       }
 
-      setNomeArquivo(file.name);
+      setNomeArquivoOriginal(file.name);
       setProgresso(0);
 
       try {
@@ -88,9 +100,29 @@ const UploadAnexo: React.FC<UploadAnexoProps> = ({
         onChange={handleArquivoSelecionado}
       />
 
-      {nomeArquivo && (
+      {urlAtual && (
         <div className="mt-3">
-          <p>Arquivo: {nomeArquivo}</p>
+          <p>
+            <strong>Anexo atual:</strong>{" "}
+            <a href={urlAtual} target="_blank" rel="noopener noreferrer">
+              Visualizar
+            </a>{" "}
+            |{" "}
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-danger ms-2"
+              onClick={onRemoveSuccess}
+            >
+              Remover
+            </button>
+          </p>
+        </div>
+      )}
+
+      {nomeArquivoOriginal && (
+        <div className="mt-2">
+          <p><strong>Nome original:</strong> {nomeArquivoOriginal}</p>
+          <p><strong>Nome no Firebase:</strong> {nomeFirebase}</p>
           <div className="progress">
             <div
               className="progress-bar"
