@@ -52,18 +52,22 @@ const SaldoComponent: React.FC<SaldoProps> = ({ userId }) => {
               const transacoesUsuario = usuarios[userId];
 
               for (const transacaoId in transacoesUsuario) {
-                const transacao = transacoesUsuario[transacaoId];
-                const tipo = transacao.tipoTransacao;
-                const valor = parseFloat(transacao.valor) || 0;
+              const transacao = transacoesUsuario[transacaoId];
+              
+              // Ignorar transações excluídas
+              if (transacao.status === "Excluída") continue;
 
-                if (tipo === 'deposito') {
-                  totalEntradas += valor;
-                } else if (tipo === 'investimento') {
-                  totalInvestimentos += valor;
-                } else {
-                  totalSaidas += valor;
-                }
+              const tipo = transacao.tipoTransacao;
+              const valor = parseFloat(transacao.valor) || 0;
+
+              if (tipo === 'deposito') {
+                totalEntradas += valor;
+              } else if (tipo === 'investimento') {
+                totalInvestimentos += valor;
+              } else {
+                totalSaidas += valor;
               }
+            }
             }
           }
         }

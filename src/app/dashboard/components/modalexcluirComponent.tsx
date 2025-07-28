@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -13,14 +14,18 @@ registerLocale("pt-BR", ptBR);
 
 interface TransacaoData {
   idTransacao: string;
-  valor?: number;
-  tipoTransacao?: string;
+  valor: number;
+  tipoTransacao: string;
+  descricao?: string;
+  categoria?: string;
+  anexoUrl?: string | null;
   data: string;
   hora: string;
   status: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  historico?: any[];
 }
 
-// Tipagem para os dados vindos do Firebase
 interface DiasTransacao {
   [userId: string]: {
     [transacaoId: string]: TransacaoData;
@@ -32,118 +37,116 @@ interface ExcluirTransacaoModalProps {
   isOpen: boolean;
 }
 
-const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
-  onClose, isOpen
-}) => {
-  const [userIdAtual, setUserIdAtual] = useState<string | null>(null);
-  const [dataSelecionada, setDataSelecionada] = useState<Date | null>(new Date());
+const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({ onClose, isOpen }) => {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [mesSelecionado, setMesSelecionado] = useState<Date | null>(new Date());
   const [transacoes, setTransacoes] = useState<TransacaoData[]>([]);
   const [transacaoSelecionada, setTransacaoSelecionada] = useState<Transacao | null>(null);
-  const [mesSelecionado, setMesSelecionado] = useState<Date | null>(new Date());
 
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
-      setUserIdAtual(user.uid);
+      setUserId(user.uid);
     } else {
       console.error("Usuário não autenticado.");
     }
   }, []);
 
   useEffect(() => {
-    const carregarTransacoes = async () => {
-      if (!userIdAtual || !mesSelecionado) return;
+    const carregarTransacoesDoMes = async () => {
+      if (!userId || !mesSelecionado) return;
 
       const db = getDatabase();
-      const mesAnoFormatado = format(mesSelecionado, "MM-yyyy");
-      const transacoesRef = ref(db, `transacoes/${mesAnoFormatado}`);
-      const transacoesDoMes: TransacaoData[] = [];
+      const mesAno = format(mesSelecionado, "MM-yyyy");
+      const refTransacoes = ref(db, `transacoes/${mesAno}`);
+      const listaTransacoes: TransacaoData[] = [];
 
       try {
-        const snapshot = await get(transacoesRef);
+        const snapshot = await get(refTransacoes);
         if (snapshot.exists()) {
-          const data: Record<string, DiasTransacao> = snapshot.val();
-
-          Object.entries(data).forEach(([, diasTransacao]) => {
-            if (diasTransacao[userIdAtual]) {
-              const transacoesUsuario = diasTransacao[userIdAtual];
-              Object.values(transacoesUsuario).forEach((transacao) => {
-                // Filtrar apenas transações com status "Ativa" ou "Editada"
-                if (transacao.status === "Ativa" || transacao.status === "Editada") {
-                  transacoesDoMes.push(transacao);
+          const dados: Record<string, DiasTransacao> = snapshot.val();
+          Object.values(dados).forEach((diaTransacoes) => {
+            const transacoesUsuario = diaTransacoes[userId];
+            if (transacoesUsuario) {
+              Object.values(transacoesUsuario).forEach((t) => {
+                if ((t.status === "Ativa" || t.status === "Editada") && t.idTransacao) {
+                  listaTransacoes.push(t as TransacaoData);
                 }
               });
             }
           });
-          setTransacoes(transacoesDoMes);
-        } else {
-          setTransacoes([]);
         }
-      } catch (error) {
-        console.error("Erro ao carregar transações:", error);
+        setTransacoes(listaTransacoes);
+        setTransacaoSelecionada(null);
+      } catch (err) {
+        console.error("Erro ao carregar transações:", err);
       }
     };
 
-    carregarTransacoes();
-  }, [userIdAtual, mesSelecionado]);
+    carregarTransacoesDoMes();
+  }, [userId, mesSelecionado]);
 
   const handleMesChange = (date: Date | null) => {
     setMesSelecionado(date);
-    setDataSelecionada(date);
-    setTransacaoSelecionada(null);
   };
 
-  const handleTransactionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = event.target.value;
-    const transacaoData = transacoes.find((t) => t.idTransacao === selectedId);
-    if (transacaoData && transacaoData.tipoTransacao && transacaoData.valor !== undefined) {
+  const handleSelecionarTransacao = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const idSelecionado = e.target.value;
+    const t = transacoes.find((t) => t.idTransacao === idSelecionado);
+
+    if (t) {
       const transacao = new Transacao(
-        transacaoData.tipoTransacao,
-        transacaoData.valor,
-        userIdAtual || "",
-        0, // saldoAnterior não disponível diretamente
-        0, // saldo será atualizado no backend
-        transacaoData.idTransacao
+        t.tipoTransacao,
+        t.valor,
+        userId || "",
+        0,
+        0,
+        t.descricao || "",
+        t.categoria || "",
+        t.idTransacao,
+        t.anexoUrl || null,
+        "edicao",
+        t.historico || []
       );
       setTransacaoSelecionada(transacao);
-    } else {
-      setTransacaoSelecionada(null);
     }
   };
 
-  const handleExcluirTransacao = async () => {
+  const handleExcluir = async () => {
     if (!transacaoSelecionada || !mesSelecionado) {
-      console.error("Transação ou mês não selecionados.");
+      alert("Selecione uma transação e mês válidos.");
       return;
     }
 
     try {
       await transacaoSelecionada.excluirTransacao(mesSelecionado);
-      console.log("Transação excluída com sucesso!");
       alert("Transação excluída com sucesso!");
       onClose();
-    } catch (error) {
-      console.error("Erro ao excluir transação:", error);
-      alert("Erro ao excluir a transação. Tente novamente.");
+    } catch (err) {
+      console.error("Erro ao excluir transação:", err);
+      alert("Erro ao excluir a transação.");
     }
   };
 
-  const legendaMesAno = mesSelecionado ? format(mesSelecionado, "MM/yyyy") : "Selecione o Mês";
+  const legendaMes = mesSelecionado ? format(mesSelecionado, "MM/yyyy") : "Selecione o mês";
 
   return (
-    <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`}>
+    <div className={`modal-overlay ${isOpen ? "is-open" : ""}`}>
       <div className="conteudoModal">
         <h3>Excluir Transação</h3>
+
         <div className="mb-3">
           <label className="form-label">Selecione o Mês:</label>
           <div className="input-group">
             <DatePicker
-              selected={dataSelecionada}
+              selected={mesSelecionado}
               onChange={handleMesChange}
               dateFormat="MM/yyyy"
               showMonthYearPicker
               locale="pt-BR"
+              className="form-control"
+              placeholderText="Mês/Ano"
             />
           </div>
         </div>
@@ -151,37 +154,37 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
         <div className="mb-3">
           <label className="form-label">
             Selecionar Transação -{" "}
-            <span className="badge text-bg-primary">({legendaMesAno})</span>
+            <span className="badge text-bg-primary">({legendaMes})</span>
           </label>
           <select
             className="form-control"
             value={transacaoSelecionada?.idTransacao || ""}
-            onChange={handleTransactionSelect}
+            onChange={handleSelecionarTransacao}
             disabled={!mesSelecionado || transacoes.length === 0}
           >
             <option value="" disabled>
               Selecione uma transação
             </option>
-            {transacoes.map((transacao) => (
-              <option key={transacao.idTransacao} value={transacao.idTransacao}>
-                R$ {transacao.valor?.toFixed(2)} ({transacao.tipoTransacao} - {transacao.data})
+            {transacoes.map((t) => (
+              <option key={t.idTransacao} value={t.idTransacao}>
+                R$ {t.valor.toFixed(2)} ({t.tipoTransacao} - {t.data})
               </option>
             ))}
           </select>
-          {transacoes.length === 0 && mesSelecionado && (
+          {transacoes.length === 0 && (
             <small className="form-text text-muted">
-              Nenhuma transação encontrada para este mês.
+              Nenhuma transação encontrada neste mês.
             </small>
           )}
         </div>
 
         <div className="modal-footer">
-          <button onClick={onClose} className="botaoCancelar">
+          <button className="botaoCancelar" onClick={onClose}>
             Cancelar
           </button>
           <button
             className="botaoSalvar"
-            onClick={handleExcluirTransacao}
+            onClick={handleExcluir}
             disabled={!transacaoSelecionada}
           >
             Excluir Transação
