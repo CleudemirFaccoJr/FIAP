@@ -1,8 +1,8 @@
-'use client';
+// app/layout.tsx (NÃO colocar 'use client')
+
 import { Geist, Geist_Mono } from "next/font/google";
-import { Provider } from "react-redux";
-import store from "../app/store";
 import "./globals.css";
+import StoreProvider from "./StoreProvider"; // 🔁 veja passo 2
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// ✅ metadata no layout (funciona porque não tem 'use client')
+export const metadata = {
+  title: "ByteBank",
+  description: "Seu gerenciador financeiro",
+};
 
 export default function RootLayout({
   children,
@@ -22,12 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Provider store={store}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Redux Provider separado num componente client-only */}
+        <StoreProvider>
           {children}
-        </Provider>
+        </StoreProvider>
       </body>
     </html>
   );

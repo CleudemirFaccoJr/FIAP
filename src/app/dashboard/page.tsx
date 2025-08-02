@@ -67,7 +67,7 @@ const Dashboard = () => {
           if (snapshot.exists()) {
             nomeUsuario = snapshot.val();
           }
-        } catch (e) {
+        } catch {
           // Fallback para displayName, se disponível
           nomeUsuario = user.displayName || "";
         }
