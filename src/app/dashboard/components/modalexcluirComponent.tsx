@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -18,6 +19,7 @@ interface TransacaoData {
   data: string;
   hora: string;
   status: string;
+  categoria?: string;
 }
 
 interface ExcluirTransacaoModalProps {
@@ -96,7 +98,8 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
         userIdAtual || "",
         0, // saldoAnterior não disponível diretamente
         0, // saldo será atualizado no backend
-        transacaoData.idTransacao
+        transacaoData.idTransacao,
+        transacaoData.categoria || "" // Adiciona categoria, ajuste conforme necessário
       );
       setTransacaoSelecionada(transacao);
     } else {

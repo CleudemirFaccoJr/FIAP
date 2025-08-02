@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -94,7 +95,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
     carregarTransacaoMes();
   }, [userIdAtual, mesSelecionado]);
 
-  const handleMudancaMes = (date: Date) => {
+  const handleMudancaMes = (date: Date | null) => {
     setmesSelecionado(date);
   };
 
@@ -116,7 +117,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
         0, 
         0, 
         foundTransaction.idTransacao,
-        foundTransaction.historico
+        foundTransaction.historico ? JSON.stringify(foundTransaction.historico) : "[]"
       );
       settransacaoSelecionada(transacao);
     } else {
@@ -135,8 +136,10 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
           transacaoSelecionada.idconta,
           transacaoSelecionada.saldoAnterior,
           transacaoSelecionada.saldo,
-          transacaoSelecionada.idTransacao,
-          transacaoSelecionada.historico
+          transacaoSelecionada.idTransacao ?? "",
+          typeof transacaoSelecionada.historico === "string"
+            ? transacaoSelecionada.historico
+            : JSON.stringify(transacaoSelecionada.historico ?? [])
         )
       );
     }
@@ -151,8 +154,10 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
           transacaoSelecionada.idconta,
           transacaoSelecionada.saldoAnterior,
           transacaoSelecionada.saldo,
-          transacaoSelecionada.idTransacao,
-          transacaoSelecionada.historico
+          transacaoSelecionada.idTransacao ?? "",
+          typeof transacaoSelecionada.historico === "string"
+            ? transacaoSelecionada.historico
+            : JSON.stringify(transacaoSelecionada.historico ?? [])
         )
       );
     }
