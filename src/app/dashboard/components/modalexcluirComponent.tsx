@@ -122,6 +122,7 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({ onClose, 
     try {
       await transacaoSelecionada.excluirTransacao(mesSelecionado);
       alert("Transação excluída com sucesso!");
+      window.location.reload();
       onClose();
     } catch (err) {
       console.error("Erro ao excluir transação:", err);

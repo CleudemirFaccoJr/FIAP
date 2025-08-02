@@ -88,9 +88,11 @@ const NovaTransacaoComponent = () => {
             try {
               await transacao.registrar();
               alert("Transação salva com sucesso!");
+              window.location.reload();
               setIdTransacao(String(Date.now()));
               setDataTransacao(format(new Date(), "dd-MM-yyyy"));
               obterSaldo(idconta);
+              
             } catch (error) {
               const msg = error instanceof Error ? error.message : String(error);
               alert(`Erro ao salvar transação: ${msg}`);

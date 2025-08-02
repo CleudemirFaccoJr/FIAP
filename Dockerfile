@@ -1,24 +1,31 @@
-# Use a imagem oficial do Node.js LTS
-FROM node:20-alpine
+# Etapa 1: Build da aplicação
+FROM node:20-alpine AS builder
 
-# Defina o diretório de trabalho
 WORKDIR /app
 
-# Copie package.json e package-lock.json (se disponível)
-COPY package.json .
-COPY package-lock.json .
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Instale as dependências
-RUN npm install
-
-# Copie o restante do código da aplicação
 COPY . .
-
-# Compile a aplicação Next.js
 RUN npm run build
 
-# Exponha a porta em que a aplicação será executada
+# Etapa 2: Imagem para produção
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Apenas as dependências de produção
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copia o build da etapa anterior
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js ./next.config.js
+COPY --from=builder /app/package.json ./package.json
+
 EXPOSE 3000
 
-# Inicie a aplicação Next.js
+ENV NODE_ENV=production
+
 CMD ["npm", "start"]

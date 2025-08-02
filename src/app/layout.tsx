@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+'use client';
 import { Geist, Geist_Mono } from "next/font/google";
+import { Provider } from "react-redux";
+import store from "../app/store";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,10 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: 'ByteBank',
-  description: 'Gerencie sua vida financeira de forma simples e prática.',
-};
 
 export default function RootLayout({
   children,
@@ -27,7 +25,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Provider store={store}>
+          {children}
+        </Provider>
       </body>
     </html>
   );

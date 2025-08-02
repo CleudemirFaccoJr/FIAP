@@ -113,6 +113,7 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose, isOpen 
 
       await transacaoAtualizada.atualizarTransacao(mesSelecionado);
       alert("Suas alterações foram salvas com sucesso!");
+      window.location.reload();
       onClose();
     } catch (err) {
       console.error("Erro ao atualizar transação:", err);

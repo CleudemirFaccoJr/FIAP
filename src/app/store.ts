@@ -10,3 +10,5 @@ export const store = configureStore({
 // Tipagem dos hooks
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+export default store;
