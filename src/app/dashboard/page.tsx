@@ -144,7 +144,7 @@ const Dashboard = () => {
           {/* Aqui temos o componente de Gráficos. Ele possui: Fluxo de Caixa, Evolução do Saldo e Gastos por Categoria */}
           <div className="row">
             <div className="col-md-12 col-sm-12 mb-3">
-              <GraficoResumo userId={usuario.id} />
+              <GraficoResumo/>
             </div>
           </div>
 
