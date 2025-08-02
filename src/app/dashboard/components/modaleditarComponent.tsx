@@ -28,6 +28,7 @@ interface TransacaoData {
 }
 
 interface EditarTransacaoProps {
+  
   onClose: () => void;
 }
 
