@@ -162,11 +162,10 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
     if (transacaoSelecionada && mesSelecionado) {
       try {
         await transacaoSelecionada.atualizarTransacao(mesSelecionado);
-        alert("Transação atualizada com sucesso!");
-        window.location.reload();
+        console.log("Transação atualizada com sucesso!");
         onClose();
       } catch (error) {
-        alert(`Erro ao atualizar transação: ${error}`);
+        console.error("Erro ao atualizar transação:", error);
       }
     } else {
       console.error("Transação ou mês não selecionados:", {
@@ -258,8 +257,16 @@ const EditarTransacaoModal: React.FC<EditarTransacaoProps> = ({ onClose }) => {
         )}
 
         <div className="modal-footer">
-          <button onClick={onClose} className="botaoCancelar">Cancelar</button>
-          <button onClick={handleAtualizarTransacao} disabled={!transacaoSelecionada} className="botaoSalvar">Salvar</button>
+          <button onClick={onClose} className="botaoCancelar">
+            Cancelar
+          </button>
+          <button
+            onClick={handleAtualizarTransacao}
+            disabled={!transacaoSelecionada}
+            className="botaoSalvar"
+          >
+            Salvar
+          </button>
         </div>
       </div>
     </div>

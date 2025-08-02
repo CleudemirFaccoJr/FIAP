@@ -1,11 +1,6 @@
 'use client';
 
 import '@/styles/style.css';
-import dynamic from 'next/dynamic';
-
-const Bootstrap = dynamic(() => import('bootstrap/dist/js/bootstrap.bundle.min.js'), {
-  ssr: false,
-});
 import Image from 'next/image';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";

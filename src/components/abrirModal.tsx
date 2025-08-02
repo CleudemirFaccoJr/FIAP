@@ -43,9 +43,14 @@ export default function AbrirContaModal() {
     try {
       await novoUsuario.cadastrar();
       toggleModal();
-    } catch (error: any) {
-      window.alert(error.message);
-    }
+    } catch (error: unknown) {
+  if (error instanceof Error) {
+    window.alert(error.message);
+  } else {
+    window.alert("Ocorreu um erro desconhecido.");
+  }
+}
+
   };
 
   return (

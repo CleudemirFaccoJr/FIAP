@@ -31,6 +31,7 @@ export class Usuario {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async login(): Promise<any> {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, this.email, this.senha);
@@ -66,6 +67,7 @@ export class Usuario {
       if (newSenha && newSenha.length >= 6) {
         try {
           await updatePassword(auth.currentUser, newSenha);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           if (error.code === "auth/requires-recent-login") {
             throw new Error("Por favor, faça login novamente para atualizar a senha.");

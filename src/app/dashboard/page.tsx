@@ -2,7 +2,6 @@
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "../../styles/dashboard.css";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useEffect, useState } from "react";
 import SaldoComponent from "./components/saldoComponent";
 import DashboardNavbar from "./components/dashboardnavbar";
@@ -14,6 +13,10 @@ import { auth } from "../../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, get } from "firebase/database";
 import ExtratoCompletoComponent from "./components/extratoCompletoComponent";
+import GraficoResumo from "./components/graficosComponent";
+import { useAppDispatch, useAppSelector } from "../hook";
+import { login, logout } from "../../features/user/userSlice";
+import type { Usuario } from "../../types/Usuario";
 
 const formatarDataCompleta = () => {
   const agora = new Date();
@@ -35,21 +38,51 @@ const formatarDataCompleta = () => {
 };
 
 const Dashboard = () => {
-  const [userId, setUserId] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const usuario = useAppSelector((state) => state.user.usuario);
+  const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
+
   const [loading, setLoading] = useState(true);
   const [dataCompleta, setDataCompleta] = useState("");
   const [primeiroNome, setPrimeiroNome] = useState("");
-  const [componenteAtivo, setComponenteAtivo] = useState<string>(""); // Novo estado
+  const [componenteAtivo, setComponenteAtivo] = useState<string>("");
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    // Importa dinamicamente o arquivo JS do Bootstrap apenas no ambiente do navegador
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('bootstrap/dist/js/bootstrap.bundle.min.js');
+    }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUserId(user.uid);
-        if (user.displayName) {
-          setPrimeiroNome(user.displayName.split(" ")[0]);
+        // Buscar nome do usuário no Realtime Database
+        const database = getDatabase();
+        const nomeUsuarioRef = ref(database, `contas/${user.uid}/nomeUsuario`);
+        let nomeUsuario = "";
+        try {
+          const snapshot = await get(nomeUsuarioRef);
+          if (snapshot.exists()) {
+            nomeUsuario = snapshot.val();
+          }
+        } catch {
+          // Fallback para displayName, se disponível
+          nomeUsuario = user.displayName || "";
         }
+
+        const nome = nomeUsuario || user.displayName || "";
+        dispatch(
+          login({
+            id: user.uid,
+            nome,
+            email: user.email || ""
+          } as Usuario)
+        );
+        setPrimeiroNome(nome.split(" ")[0]);
       } else {
-        setUserId(null);
+        dispatch(logout());
         setPrimeiroNome("");
       }
       setLoading(false);
@@ -58,27 +91,14 @@ const Dashboard = () => {
     setDataCompleta(formatarDataCompleta());
 
     return () => unsubscribeAuth();
-  }, []);
+  }, [dispatch]);
 
+  // Atualizar primeiro nome caso usuário seja carregado posteriormente via Redux
   useEffect(() => {
-    if (userId && !primeiroNome) {
-      const database = getDatabase();
-      const userRef = ref(database, `contas/${userId}/nomeUsuario`);
-      console.log("Buscando nome do usuário no Banco de Dados:", userRef);
-      get(userRef)
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            const nomeUsuario = snapshot.val();
-            setPrimeiroNome(nomeUsuario.split(" ")[0]);
-          } else {
-            console.log("Nome de usuário não encontrado no banco de dados.");
-          }
-        })
-        .catch((error) => {
-          console.error("Erro ao buscar nome de usuário:", error);
-        });
+    if (usuario && usuario.nome) {
+      setPrimeiroNome(usuario.nome.split(" ")[0]);
     }
-  }, [userId, primeiroNome]);
+  }, [usuario]);
 
   const renderComponente = () => {
     switch (componenteAtivo) {
@@ -99,7 +119,7 @@ const Dashboard = () => {
     return <div>Carregando informações do usuário...</div>;
   }
 
-  if (userId === null) {
+  if (!isAuthenticated || !usuario) {
     return (
       <div>Usuário não autenticado. Redirecione para a página de login.</div>
     );
@@ -114,12 +134,24 @@ const Dashboard = () => {
             <h5 className="nomeUsuario">{primeiroNome || "Usuário"}</h5>
             <p className="diaSemana">{dataCompleta}</p>
           </div>
+          {/* Aqui temos o componente de Saldo. Ele possui: Saldo, Entradas, Saidas e Investimentos */}
+          <div className="row">
+            <div className="col-md-12 col-sm-12">
+              <SaldoComponent userId={usuario.id} />
+            </div>
+          </div>
+
+          {/* Aqui temos o componente de Gráficos. Ele possui: Fluxo de Caixa, Evolução do Saldo e Gastos por Categoria */}
+          <div className="row">
+            <div className="col-md-12 col-sm-12 mb-3">
+              <GraficoResumo/>
+            </div>
+          </div>
+
+          {/* Aqui temos o componente de Nova Transação e Extrato */}
           <div className="row">
             <div className="col-md-4 col-sm-12">
-              <SaldoComponent userId={userId} />
-              <br />
               <NovaTransacaoComponent />
-              <br />
             </div>
             <div className="col-md-8 col-sm-12">
               <ExtratoComponent />

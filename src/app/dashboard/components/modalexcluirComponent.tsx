@@ -114,7 +114,6 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
       await transacaoSelecionada.excluirTransacao(mesSelecionado);
       console.log("Transação excluída com sucesso!");
       alert("Transação excluída com sucesso!");
-      window.location.reload();
       onClose();
     } catch (error) {
       console.error("Erro ao excluir transação:", error);
@@ -172,7 +171,13 @@ const ExcluirTransacaoModal: React.FC<ExcluirTransacaoModalProps> = ({
           <button onClick={onClose} className="botaoCancelar">
             Cancelar
           </button>
-          <button className="botaoSalvar" onClick={handleExcluirTransacao} disabled={!transacaoSelecionada}>Excluir Transação</button>
+          <button
+            className="botaoSalvar"
+            onClick={handleExcluirTransacao}
+            disabled={!transacaoSelecionada}
+          >
+            Excluir Transação
+          </button>
         </div>
       </div>
     </div>

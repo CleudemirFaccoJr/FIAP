@@ -1,11 +1,18 @@
 'use client';
-
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'; 
 import '@/styles/style.css';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { useEffect } from 'react';
 
 export default function SobrePage() {
+    useEffect(() => {
+        // Importa dinamicamente o arquivo JS do Bootstrap apenas no ambiente do navegador
+        if (typeof window !== 'undefined') {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          require('bootstrap/dist/js/bootstrap.bundle.min.js');
+        }
+      }, []); 
+
     return (
         <>
             <Navbar />
