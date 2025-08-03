@@ -64,118 +64,6 @@ body {
   color: #777777;
 }
 
-
-/* Entradas Card CSS */
-.entradas-card {
-  border: 1px solid #d1d1d1;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f7f7f7;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.entradas-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #004d61;
-}
-
-.entradas-conteudo h2 {
-  margin: 0;
-  font-size: 30x;
-  font-weight: bold;
-  color: #333333;
-}
-
-.entradas-header h4 {
-  margin: 0;
-  font-size: 20px;
-  color: #006118;
-  border-bottom: 2px solid #006118;
-  padding-bottom: 2px;
-  font-weight: 800;
-}
-
-.entradas-conteudo {
-  margin-top: 16px;
-  margin-bottom: 18px;
-}
-
-/* Saída Card CSS */
-.saidas-card {
-  border: 1px solid #d1d1d1;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f7f7f7;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.saidas-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #004d61;
-}
-
-.saidas-conteudo h2 {
-  margin: 0;
-  font-size: 30x;
-  font-weight: bold;
-  color: #333333;
-}
-
-.saidas-header h4 {
-  margin: 0;
-  font-size: 20px;
-  color: #f10101;
-  border-bottom: 2px solid #f10101;
-  padding-bottom: 2px;
-  font-weight: 800;
-}
-
-.saidas-conteudo {
-  margin-top: 16px;
-  margin-bottom: 18px;
-}
-
-/* Investimentos Card CSS */
-.investimentos-card {
-  border: 1px solid #d1d1d1;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f7f7f7;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.investimentos-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #004d61;
-}
-
-.investimentos-conteudo h2 {
-  margin: 0;
-  font-size: 30x;
-  font-weight: bold;
-  color: #333333;
-}
-
-.investimentos-header h4 {
-  margin: 0;
-  font-size: 20px;
-  color: #2563eb;
-  border-bottom: 2px solid #2563eb;
-  padding-bottom: 2px;
-  font-weight: 800;
-}
-
-.investimentos-conteudo {
-  margin-top: 16px;
-  margin-bottom: 18px;
-}
-
 /* CSS para o Componente de Extrato */
 .extrato-card {
   background-color: #ffffff;
@@ -258,22 +146,6 @@ body {
   text-transform: capitalize;
 }
 
-.extrato-tipo-investimento {
-    color: #2563eb;
-    font-size: 12px;
-    text-transform: capitalize;
-}
-
-.extrato-tipo-pagamento {
-    color: #fd4800;
-    font-size: 12px;
-    text-transform: capitalize;
-}
-
-.paginacao, .btn{
-  font-size: 12px;
-}
-
 /* CSS para Nova Transação */
 .nova-transacao-card {
   background-color: #cbcbcb;
@@ -314,14 +186,6 @@ body {
   box-sizing: border-box;
 }
 
-.descricao-textarea {
-  width: 100%;
-  padding: 8px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 .concluir-button {
   background-color: #4caf50;
   color: white;
@@ -330,7 +194,6 @@ body {
   border-radius: 5px;
   font-size: 1.1em;
   cursor: pointer;
-  margin-top: 10px;
 }
 
 .concluir-button:hover {
@@ -456,104 +319,12 @@ body {
 }
 
 /* CSS para componente Extrato Completo */
-.extratoCompletoContainer{
-  margin: 0 auto;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  overflow: hidden;
-  padding: 20px;
-}
 
-.transacoes-lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.transacao-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #eee;
-  padding: 15px 10px;
-  gap: 10px;
-}
-
-.icone-tipo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  font-size: 18px;
-  color: #fff;
-}
-
-.info {
-  flex-grow: 1;
-}
-
-.info strong {
-  display: block;
-  font-weight: 600;
-}
-
-.info span {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.data {
+.valor-transacao {
   text-align: right;
-  font-size: 0.85rem;
-  color: #888;
+  font-size: 2em;
+  font-weight: 700;
 }
-
-.valor {
-  font-weight: bold;
-  min-width: 90px;
-  text-align: right;
-}
-
-.valor.deposito {
-  color: #28a745;
-}
-
-.valor.transferencia {
-  color: #dc3545;
-}
-
-.valor.investimento {
-  color: #2563eb;
-}
-
-.valor.outro {
-  color: #ffc107;
-}
-
-.status {
-  font-size: 0.8rem;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-  text-align: center;
-  min-width: 70px;
-}
-
-.status.ativa {
-  background-color: #d4f8dd;
-  color: #28a745;
-}
-
-.status.pendente {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
 
 /* Estilizar transações excluídas */
 .transacao-excluida {
@@ -567,11 +338,6 @@ body {
 
 .textos-transacao{
   text-align: left;
-}
-
-/* Estilos para a parte de Outros Serviços */
-.outrosServicos {
-  padding-top: 20px;
 }
 
 /* Geral para telas menores que 768px */

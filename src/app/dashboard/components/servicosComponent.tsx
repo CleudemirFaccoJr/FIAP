@@ -1,11 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-interface ServicosProps {
-  onServicoSelecionado: (key: string) => void;
-}
-
-const Servicos: React.FC<ServicosProps> = ({ onServicoSelecionado }) => {
+const Servicos = ({ onServicoSelecionado }) => {
   const servicos = [
     { nome: "Empréstimo", imagem: "/images/emprestimo.png" },
     { nome: "Meus cartões", imagem: "/images/cartoes.png", key: "cartoes-credito" },

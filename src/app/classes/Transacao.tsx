@@ -11,15 +11,12 @@ export class Transacao {
   data: string;
   hora: string;
   status: string;
-  descricao: string;
-  categoria: string;
   idTransacao?: string;
-  anexoUrl?: string | null; // Added anexoUrl property
   historico?: Array<{
     dataModificacao: string;
     campoModificado: string;
-    valorAnterior: unknown;
-    valorAtualizado: unknown;
+    valorAnterior: any;
+    valorAtualizado: any;
   }>;
 
   constructor(
@@ -28,16 +25,12 @@ export class Transacao {
     idconta: string,
     saldoAnterior: number,
     saldo: number,
-    descricao: string,
-    categoria: string,
     idTransacao?: string,
-    anexoUrl?: string | null,
-    modo: "nova" | "edicao" = "nova",
     historico?: Array<{
       dataModificacao: string;
       campoModificado: string;
-      valorAnterior: unknown;
-      valorAtualizado: unknown;
+      valorAnterior: any;
+      valorAtualizado: any;
     }>
   ) {
     this.tipo = tipo;
@@ -46,10 +39,7 @@ export class Transacao {
     this.saldoAnterior = saldoAnterior;
     this.saldo = saldo;
     this.idTransacao = idTransacao;
-    this.anexoUrl = anexoUrl;
     this.historico = historico;
-    this.descricao = descricao;
-    this.categoria = categoria;
 
     const dataAtual = new Date();
     this.data = `${String(dataAtual.getDate()).padStart(2, "0")}-${String(
@@ -58,18 +48,19 @@ export class Transacao {
     this.hora = `${String(dataAtual.getHours()).padStart(2, "0")}:${String(
       dataAtual.getMinutes()
     ).padStart(2, "0")}:${String(dataAtual.getSeconds()).padStart(2, "0")}`;
-    this.status = modo === "edicao" ? "Editada" : "Ativa";
+    this.status = idTransacao ? "Editada" : "Ativa";
   }
 
   async registrar(): Promise<void> {
     const dataAtual = new Date();
     const mesVigente = `${String(dataAtual.getMonth() + 1).padStart(2, "0")}-${dataAtual.getFullYear()}`;
-    const idTransacaoToUse = this.idTransacao || `${dataAtual.getTime()}`;
-    const transacoesRef = ref(database, `transacoes/${mesVigente}/${this.data}/${this.idconta}/${idTransacaoToUse}`);
+    const timestamp = dataAtual.getTime();
+    const idTransacao = `${timestamp}`;
+    const transacoesRef = ref(database, `transacoes/${mesVigente}/${this.data}/${this.idconta}/${timestamp}`);
 
     try {
       await set(transacoesRef, {
-        idTransacao: idTransacaoToUse,
+        idTransacao,
         tipoTransacao: this.tipo,
         valor: this.valor,
         saldoAnterior: this.saldoAnterior,
@@ -77,9 +68,6 @@ export class Transacao {
         data: this.data,
         hora: this.hora,
         status: this.status,
-        descricao: this.descricao,
-        categoria: this.categoria,
-        anexoUrl: this.anexoUrl || null,
       });
 
       const contaRef = ref(database, `contas/${this.idconta}/saldo`);
@@ -182,11 +170,8 @@ export class Transacao {
           saldo: saldoAtual,
           data: this.data,
           hora: this.hora,
-          status: "Ativa",
+          status: "Editada",
           historico: novoHistorico,
-          descricao: this.descricao,
-          categoria: this.categoria,
-          anexoUrl: this.anexoUrl || null,
         });
 
         await update(saldoRef, { saldo: saldoAtual });

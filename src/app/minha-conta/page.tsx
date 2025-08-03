@@ -1,5 +1,6 @@
 "use client";
 import "@/styles/minhaconta.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Image from "next/image";
 import DashboardNavbar from "../dashboard/components/dashboardnavbar";
 import { useState, useEffect } from "react";
@@ -21,15 +22,6 @@ export default function MinhaConta() {
   });
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  // NOVO useEffect para carregar o Bootstrap JS no cliente
-  useEffect(() => {
-    // Importa dinamicamente o arquivo JS do Bootstrap apenas no ambiente do navegador
-    if (typeof window !== 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('bootstrap/dist/js/bootstrap.bundle.min.js');
-    }
-  }, []);
 
   useEffect(() => {
     const deslogar = onAuthStateChanged(auth, (user) => {

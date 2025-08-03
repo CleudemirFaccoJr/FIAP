@@ -1,7 +1,6 @@
 'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/styles/footer.css';
-import Image from 'next/image';
 
 import React from 'react';
 
@@ -30,11 +29,11 @@ export default function Footer() {
         
         <div className="col-md-4">
           <h5>Desenvolvido por Alura</h5>
-          <Image src="/images/logo_branco.png" alt="ByteBank Logo" className="mb-3" width={100} height={100} />
+          <img src="/images/logo_branco.png" alt="ByteBank Logo" className="mb-3"/>
           <div className="d-flex gap-3">
-            <a href="#"><Image src="/icons/instagram.svg" alt="Instagram" width={24} height={24} /></a>
-            <a href="#"><Image src="/icons/whatsapp.svg" alt="WhatsApp" width={24} height={24} /></a>
-            <a href="#"><Image src="/icons/youtube.svg" alt="YouTube" width={24} height={24} /></a>
+            <a href="#"><img src="/icons/instagram.svg" alt="Instagram" width={24} height={24} /></a>
+            <a href="#"><img src="/icons/whatsapp.svg" alt="WhatsApp" width={24} height={24} /></a>
+            <a href="#"><img src="/icons/youtube.svg" alt="YouTube" width={24} height={24} /></a>
           </div>
         </div>
       </div>

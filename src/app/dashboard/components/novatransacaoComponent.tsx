@@ -100,6 +100,7 @@ const NovaTransacaoComponent = () => {
       alert("Transação concluída com sucesso!");
       setTipo("");
       setValor("");
+      window.location.reload();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       alert(`Erro ao salvar a transação: ${errorMessage}. Tente novamente.`);
@@ -125,21 +126,9 @@ const NovaTransacaoComponent = () => {
           </select>
         </div>
         <div className="form-group">
-          <input
-            type="number"
-            id="valor"
-            name="valor"
-            className="valor-input"
-            placeholder="R$ 00.00"
-            step="0.01"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            required
-          />
+          <input type="number" id="valor" name="valor" className="valor-input" placeholder="R$ 00.00" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} required/>
         </div>
-        <button type="submit" className="concluir-button">
-          Concluir Transação
-        </button>
+        <button type="submit" className="concluir-button">Concluir Transação</button>
       </form>
     </div>
   );

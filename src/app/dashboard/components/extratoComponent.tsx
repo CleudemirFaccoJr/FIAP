@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { getAuth } from "firebase/auth";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import EditarTransacaoModal from "./modaleditarComponent";
 import ExcluirTransacaoModal from "./modalexcluirComponent";
 import { Extrato } from "@/app/classes/Extrato";
-import { visualizarAnexo } from "@/utils/visualizarAnexo";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface TransacaoData {
   idTransacao: string;
@@ -14,7 +17,6 @@ interface TransacaoData {
   data: string;
   hora: string;
   status: string;
-  anexoUrl?: string;
 }
 
 const ExtratoComponent = () => {
@@ -23,26 +25,6 @@ const ExtratoComponent = () => {
   const [modalEditarAberto, setModalEditarAberto] = useState(false);
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
   const [extrato, setExtrato] = useState<Extrato | null>(null);
-
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const transacoesPorPagina = 5;
-
-  const [ordenacao, setOrdenacao] = useState<"mais_recente" | "mais_antigo">("mais_recente");
-
-  // Cálculo de páginas com ordenação aplicada
-  const transacoesOrdenadas = [...transacoes].sort((a, b) => {
-    const dataA = new Date(`${a.data.split("/").reverse().join("-")}T${a.hora}`);
-    const dataB = new Date(`${b.data.split("/").reverse().join("-")}T${b.hora}`);
-    return ordenacao === "mais_recente"
-      ? dataB.getTime() - dataA.getTime()
-      : dataA.getTime() - dataB.getTime();
-  });
-
-  // Cálculo de páginas
-  const indexInicio = (paginaAtual - 1) * transacoesPorPagina;
-  const indexFim = indexInicio + transacoesPorPagina;
- const transacoesPaginadas = transacoesOrdenadas.slice(indexInicio, indexFim);
-  const totalPaginas = Math.ceil(transacoes.length / transacoesPorPagina);
 
   useEffect(() => {
     const auth = getAuth();
@@ -69,6 +51,29 @@ const ExtratoComponent = () => {
     fetchTransacoes();
   }, [extrato]);
 
+  const { entradas, saidas } = extrato ? extrato.calcularEntradaseSaidas(transacoes) : { entradas: 0, saidas: 0 };
+
+  const data = {
+    labels: ["Entradas", "Saídas"],
+    datasets: [
+      {
+        label: "R$",
+        data: [entradas, saidas],
+        backgroundColor: ["#4CAF50", "#F44336"],
+        borderColor: ["#388E3C", "#D32F2F"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: { display: false },
+    },
+  };
+
   const abrirModalEditar = () => setModalEditarAberto(true);
   const fecharModalEditar = () => setModalEditarAberto(false);
 
@@ -79,20 +84,11 @@ const ExtratoComponent = () => {
     <div className="extrato-card">
       <div className="container">
         <div className="row">
-          <div className="col-md-6 col-sm-12">
+          <div className="col-md-10 col-sm-12">
             <h5>Extrato</h5>
           </div>
-          <div className="col-md-6 col-sm-12 text-end">
+          <div className="col-md-2 col-sm-12 text-end">
             <ul>
-              <li>
-                <select className="form-select" value={ordenacao} onChange={(e) => {
-                setOrdenacao(e.target.value as "mais_recente" | "mais_antigo");
-                setPaginaAtual(1); // Volta para a primeira página ao mudar ordenação
-              }}>
-                  <option value="mais_recente">Mais recente primeiro</option>
-                  <option value="mais_antigo">Mais antigo primeiro</option>
-                </select>
-              </li>
               <li>
                 <span className="extrato-editar-icone" onClick={abrirModalEditar}>
                   <FontAwesomeIcon icon={faPenToSquare} />
@@ -107,18 +103,24 @@ const ExtratoComponent = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-md-12 col-sm-12">
+          <div className="col-md-4 col-sm-12">
+            <div className="extrato-item">
+              <div className="extrato-header">Últimos 30 dias</div>
+              <Bar data={data} options={options} />
+            </div>
+          </div>
+          <div className="col-md-8 col-sm-12">
             <div className="extrato-item">
               <div className="row">
               <div className="extrato-header">Últimas Transações</div>
-              {transacoesPaginadas.length > 0 ? (
-                transacoesPaginadas.map((transacao) => (
+              {transacoes.length > 0 ? (
+                transacoes.map((transacao) => (
                   <div key={transacao.idTransacao} className="extrato-transacao row">
                     <div className="col-md-6 col-sm-12">
                       <div className="extrato-mes">{mesVigente}</div>
                       <div className="extrato-data">{`${transacao.data} - ${transacao.hora}`}</div>
                     </div>
-                    <div className="col-md-4 col-sm-12">
+                    <div className="col-md-6 col-sm-12">
                       <div
                         className={`extrato-valor ${
                           transacao.tipoTransacao === "deposito" ? "positivo" : "negativo"
@@ -130,25 +132,11 @@ const ExtratoComponent = () => {
                         {transacao.tipoTransacao}
                       </div>
                     </div>
-                    <div className="col-md-2 col-sm-12">
-                    {transacao.anexoUrl && (
-                        <button className="btn btn-sm btn-outline-primary" onClick={() => visualizarAnexo(transacao.anexoUrl || "")}>Ver Anexo</button>
-                    )}
-                  </div>
                   </div>
                 ))
               ) : (
                 <div className="col-12">
                   <p>Nenhuma transação encontrada.</p>
-                </div>
-              )}
-
-              {/* Controles de Paginação */}
-              {totalPaginas > 1 && (
-                <div className="paginacao mt-3 text-end">
-                  <button className="btn btn-secondary me-2" onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))} disabled={paginaAtual === 1}>Anterior</button>
-                  <span>Página {paginaAtual} de {totalPaginas}</span>
-                  <button className="btn btn-secondary ms-2" onClick={() => setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))} disabled={paginaAtual === totalPaginas}>Próxima</button>
                 </div>
               )}
               </div>
