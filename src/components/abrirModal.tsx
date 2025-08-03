@@ -82,14 +82,7 @@ export default function AbrirContaModal() {
                 ></button>
               </div>
               <div className="modal-body mx-auto">
-                <Image
-                  src="/images/abriConta.png"
-                  alt="Logo ByteBank"
-                  width={355}
-                  height={262}
-                  priority
-                  className="mb-3"
-                />
+                <Image src="/images/abriConta.png" alt="Logo ByteBank" width={355} height={262} priority className="mb-3 img-fluid"/>
                 <p>Preencha os campos abaixo para criar sua conta corrente!</p>
                 <form>
                   <div className="mb-3">
